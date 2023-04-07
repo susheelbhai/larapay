@@ -6,7 +6,7 @@
     "autoload": {
         "psr-4": {
             "Susheelbhai\\Larapay\\": "src/",
-            "Susheelbhai\\Larapay\\Database\\Seeders\\": "database/seeders/"
+            "Susheelbhai\\LarapayDatabase\\Seeders\\": "database/seeders/"
         }
     },
     "extra": {

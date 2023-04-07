@@ -1,6 +1,6 @@
 <?php
 
-namespace Susheelbhai\Larapay\Database\Seeders;
+namespace Susheelbhai\LarapayDatabase\Seeders;
 
 use Susheelbhai\Larapay\Http\Models\PaymentGateway;
 use Illuminate\Database\Seeder;

@@ -1,6 +1,6 @@
 <?php
 
-namespace Susheelbhai\Larapay\Database\Seeders;
+namespace Susheelbhai\LarapayDatabase\Seeders;
 
 use Illuminate\Database\Seeder;
 
