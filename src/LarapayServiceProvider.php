@@ -22,6 +22,11 @@ class LarapayServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->registerPublishable();
+        if ($this->app->runningInConsole()) {
+            $this->commands([
+                \Susheelbhai\Larapay\Commands\initial_settings::class,
+            ]);
+        }
     }
 
     public function registerPublishable()
