@@ -16,7 +16,7 @@ return new class extends Migration
         Schema::create('payments', function (Blueprint $table) {
             $table->id();
             $table->timestamps();
-            // $table->foreignId('user_id')->nullable()->references('user_id')->on('users');
+            $table->foreignId('payment_gateway_id')->nullable()->references('id')->on('payment_gateways');
             $table->string('email')->nullable();
             $table->string('phone')->nullable();
             $table->string('amount')->nullable();
