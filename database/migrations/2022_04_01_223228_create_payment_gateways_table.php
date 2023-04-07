@@ -1,8 +1,9 @@
 <?php
 
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Migrations\Migration;
+use Susheelbhai\Larapay\Models\PaymentGateway;
 
 return new class extends Migration
 {
@@ -18,6 +19,13 @@ return new class extends Migration
             $table->string('name')->nullable();
             $table->boolean('is_active');
         });
+        $payment_gateways = array(
+            array('id' => '1', 'name' => 'Career', 'is_active' => '1'),
+            array('id' => '2', 'name' => 'Help & Support', 'is_active' => '1'),
+            array('id' => '3', 'name' => 'Privecy Policy', 'is_active' => '1'),
+            array('id' => '4', 'name' => 'Terms of uses', 'is_active' => '1'),
+          );
+        PaymentGateway::insert($payment_gateways);
     }
 
     /**

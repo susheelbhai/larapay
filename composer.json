@@ -5,8 +5,7 @@
     "license": "MIT",
     "autoload": {
         "psr-4": {
-            "Susheelbhai\\Larapay\\": "src/",
-            "Susheelbhai\\LarapayDatabase\\Seeders\\": "database/seeders/"
+            "Susheelbhai\\Larapay\\": "src/"
         }
     },
     "extra": {
