@@ -1,0 +1,29 @@
+{
+    "name": "susheelbhai/larapay",
+    "description": "Multiple payment gateway for Laravel Application",
+    "type": "library",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Susheelbhai\\Larapay\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Susheelbhai\\Larapay\\LarapayServiceProvider"
+            ],
+            "aliases": {
+                "Larapay": "Susheelbhai\\Larapay\\Facade"
+            }
+        }
+    },
+    "authors": [
+        {
+            "name": "Susheel Kumar Singh",
+            "email": "susheelkrsingh306@gmail.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {}
+}
