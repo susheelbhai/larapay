@@ -17,13 +17,13 @@ class PaymentController extends Controller
     }
     public function index(Request $request)
     {
+        $input = $request->all();
         $extra_input_array = array(
             'name' => 'Susheel Kumar Singh',
             'email' => 'susheelkrsingh306@gmail.com',
             'phone' => '9090653356',
-            'redirect_url' => route('home'),
+            'redirect_url' => $input['redirect_url'],
         );
-        $input = $request->all();
         $api = new Api(env('RAZORPAY_KEY_ID'), env('RAZORPAY_KEY_SECRET'));
         $orderData = [
             'receipt'         => 'rcptid_11',

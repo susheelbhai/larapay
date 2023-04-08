@@ -14,10 +14,13 @@
             <div class="card-body">
                 <form class="row g-3 needs-validation" action="{{ route('payment_form') }}" method="post">
                     @csrf
-                    
                     <div class="col-md-6">
                         <label for="name" class="form-label"> Name</label>
                         <input type="text" class="form-control" name="name" id="name" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="redirect_url" class="form-label"> Redirect URL</label>
+                        <input type="text" class="form-control" name="redirect_url" id="redirect_url" required>
                     </div>
                     <div class="col-md-6">
                         <label for="email" class="form-label"> Email</label>
