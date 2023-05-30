@@ -14,6 +14,7 @@ class LarapayServiceProvider extends ServiceProvider
         $this->loadRoutesFrom(__DIR__ . '/../routes/web.php');
         $this->loadViewsFrom(__DIR__ . '/../resources/views', 'larapay');
         $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
+        $this->mergeConfigFrom(__DIR__.'/../config/larapay.php','larapay');
     }
 
     /**

@@ -32,7 +32,15 @@
                     </div>
                     <div class="col-md-6">
                         <label for="amount" class="form-label">Amount</label>
-                        <input type="text" class="form-control" name="amount" id="amount" required>
+                        <input type="number" class="form-control" name="amount" id="amount" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="gateway" class="form-label">Payment Gateway</label>
+                        <select  class="form-control" name="gateway" id="gateway">
+                            @foreach ($gateways as $i)
+                                <option value="{{ $i->id }}"> {{ $i->name }} </option>
+                            @endforeach
+                        </select>
                     </div>
                     <div class="col-12">
                         <button class="btn btn-primary" type="submit">Submit form</button>

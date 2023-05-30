@@ -25,8 +25,11 @@ class initial_settings extends Command
      */
 
      public $env_values = array(
-        'RAZORPAY_KEY_ID' => 'rzp_test_qmRQ26ltomg3mz',
-        'RAZORPAY_KEY_SECRET' => 'K8NDGM0sp2oRTJXXfPRi6Dlx'
+        'RAZORPAY_KEY_ID' => '',
+        'RAZORPAY_KEY_SECRET' => '',
+        'PINELAB_MERCHANT_ID' => '',
+        'PINELAB_ACCESS_CODE' => '',
+        'PINELAB_SECRET_CODE' => '',
     );
     public $config_values = array(
         'timezone' => 'Asia/Kolkata'
