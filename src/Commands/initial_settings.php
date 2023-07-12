@@ -27,9 +27,13 @@ class initial_settings extends Command
      public $env_values = array(
         'RAZORPAY_KEY_ID' => '',
         'RAZORPAY_KEY_SECRET' => '',
+
         'PINELAB_MERCHANT_ID' => '',
         'PINELAB_ACCESS_CODE' => '',
         'PINELAB_SECRET_CODE' => '',
+        
+        'STRIPE_PUBLISHABLE_KEY' => '',
+        'STRIPE_SECRET_KEY' => '',
     );
     public $config_values = array(
         'timezone' => 'Asia/Kolkata'
@@ -49,9 +53,9 @@ class initial_settings extends Command
         $str = file_get_contents($envFile);
 
         if (count($values) > 0) {
+            $str .= "\n\n"; // In case the searched variable is in the last line without \n
             foreach ($values as $envKey => $envValue) {
 
-                $str .= "\n"; // In case the searched variable is in the last line without \n
                 $keyPosition = strpos($str, "{$envKey}=");
                 $endOfLinePosition = strpos($str, "\n", $keyPosition);
                 $oldLine = substr($str, $keyPosition, $endOfLinePosition - $keyPosition);

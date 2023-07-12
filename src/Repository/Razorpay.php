@@ -10,7 +10,7 @@ class Razorpay{
 
     public function paymentRequest($data)
     {
-        $api = new Api(env('RAZORPAY_KEY_ID'), env('RAZORPAY_KEY_SECRET'));
+        $api = new Api(config('larapay.razorpay.razorpay_key_id'), config('larapay.razorpay.razorpay_key_secret'));
         $orderData = [
             'receipt'         => 'rcptid_11',
             'amount'          =>  $data['amount']*100, // 39900 rupees in paise
@@ -28,7 +28,7 @@ class Razorpay{
         $error = "Payment Failed";
 
         if (empty($request['razorpay_payment_id']) === false) {
-            $api = new Api(env('RAZORPAY_KEY_ID'), env('RAZORPAY_KEY_SECRET'));
+            $api = new Api(config('larapay.razorpay.razorpay_key_id'), config('larapay.razorpay.razorpay_key_secret'));
 
             try {
                 // Please note that the razorpay order ID must
