@@ -23,8 +23,8 @@ return new class extends Migration
         $payment_gateways = array(
             array('id' => '1', 'name' => 'COD', 'is_active' => '1', 'is_default'=>0),
             array('id' => '2', 'name' => 'Razorpay', 'is_active' => '1', 'is_default'=>0),
-            array('id' => '3', 'name' => 'PayUMoney', 'is_active' => '1', 'is_default'=>1),
-            array('id' => '4', 'name' => 'PineLabs', 'is_active' => '1', 'is_default'=>0),
+            array('id' => '3', 'name' => 'PineLabs', 'is_active' => '1', 'is_default'=>0),
+            array('id' => '4', 'name' => 'Stripe', 'is_active' => '1', 'is_default'=>0),
             array('id' => '5', 'name' => 'CCAvanue', 'is_active' => '1', 'is_default'=>0),
           );
         PaymentGateway::insert($payment_gateways);

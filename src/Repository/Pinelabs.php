@@ -106,10 +106,9 @@ class Pinelabs
         $request->redirect_url = route('payment_form');
         if ($success === true) {
             Payment::updateOrCreate(
-                ['payment_id' => $request->razorpay_payment_id],
+                ['order_id' => $request->ppc_UniqueMerchantTxnID],
                 [
-                    'payment_gateway_id' => 4,
-                    'order_id' => $request->ppc_UniqueMerchantTxnID,
+                    'payment_gateway_id' => $request->gateway,
                     'email' => $request->email,
                     'phone' => $request->phone,
                     'payment_status' => 1,

@@ -51,7 +51,7 @@ class Razorpay{
             Payment::updateOrCreate(
                 ['payment_id' => $request->razorpay_payment_id],
                 [
-                    'payment_gateway_id' => 1,
+                    'payment_gateway_id' => $request->gateway,
                     'order_id' => $request->razorpay_order_id,
                     'email' => $request->email,
                     'phone' => $request->phone,
@@ -60,7 +60,8 @@ class Razorpay{
             );
             $data = [
                 'redirect_url' => $request->redirect_url,
-                'msg' => 'payment successful'
+                'msg' => 'payment successful',
+                'success' =>  true
             ];
         } else {
             $data = [

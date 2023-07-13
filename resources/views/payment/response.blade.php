@@ -46,7 +46,9 @@
 
 @section('content')
     <div class="container">
-
+        @php
+            $waiting_time = config('larapay.settings.redirection_waiting_time');
+        @endphp
         @if ($data['success'] == true)
             <div class="card success">
                 <div style="border-radius:200px; height:200px; width:200px; background: #F8FAF5; margin:0 auto;">
@@ -64,7 +66,7 @@
                         <td> : {{ $request->razorpay_order_id ?? '' }} </td>
                     </tr>
                 </table>
-                <p>You should be automatically redirected in <span id="seconds">7</span> seconds.
+                <p>You should be automatically redirected in <span id="seconds">{{ $waiting_time }}</span> seconds.
                 </p>
                 <a href="{{ $request->redirect_url }}"> Redirect Now </a> 
             </div>
@@ -88,7 +90,7 @@
         <script>
             // Countdown timer for redirecting to another URL after several seconds
     
-            var seconds = 6; // seconds for HTML
+            var seconds = {{ $waiting_time }}; // seconds for HTML
             var foo; // variable for clearInterval() function
     
             function redirect() {

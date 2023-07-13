@@ -25,6 +25,7 @@ class initial_settings extends Command
      */
 
      public $env_values = array(
+        'PAYMENT_REDIRECTION_WAITIONG_TIME' => '7',
         'RAZORPAY_KEY_ID' => '',
         'RAZORPAY_KEY_SECRET' => '',
 

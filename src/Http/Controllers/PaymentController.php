@@ -2,15 +2,20 @@
 
 namespace Susheelbhai\Larapay\Http\Controllers;
 
+use Stripe\Charge;
+use Stripe\Stripe;
 use Razorpay\Api\Api;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Session;
 use Susheelbhai\Larapay\Models\Payment;
+use Susheelbhai\Larapay\Repository\COD;
 use Susheelbhai\Larapay\Repository\Pinelabs;
 use Susheelbhai\Larapay\Repository\Razorpay;
 use Susheelbhai\Larapay\Models\PaymentGateway;
 use Razorpay\Api\Errors\SignatureVerificationError;
+use Susheelbhai\Larapay\Repository\Stripe as StripeRepository;
 
 class PaymentController extends Controller
 {
@@ -27,7 +32,7 @@ class PaymentController extends Controller
     }
     public function index(Request $request)
     {
-        $input = $request->all();
+          $input = $request->all();
         $extra_input_array = array(
             'name' => 'Susheel Kumar Singh',
             'email' => 'susheelkrsingh306@gmail.com',
@@ -37,7 +42,7 @@ class PaymentController extends Controller
         );
 
         if ($request->gateway == 1) {
-            return $input;
+            return view('larapay::gateways.cod.confirmation', compact('input'));
         }
         if ($request->gateway == 2) {
             $order = new Razorpay();
@@ -46,13 +51,11 @@ class PaymentController extends Controller
         }
         if ($request->gateway == 3) {
             $order = new Pinelabs();
-            return  $razorpayOrder = $order->paymentRequest($input);
-            return view('larapay::payment.index', compact('razorpayOrder', 'input', 'extra_input_array'));
-        }
-        if ($request->gateway == 4) {
-            $order = new Pinelabs();
             $orderData = $order->paymentRequest($input);
             return view('larapay::gateways.pinelabs.purchase_redirect', compact('orderData', 'input', 'extra_input_array'));
+        }
+        if ($request->gateway == 4) {
+            return view('larapay::gateways.stripe.card_payment', compact('input'));
         }
     }
 
@@ -61,11 +64,13 @@ class PaymentController extends Controller
         // return $request;
         if (isset($request->ppc_MerchantID)) {
             $response = new Pinelabs();
-              $data = $response->paymentResponce($request);
+            $data = $response->paymentResponce($request);
             return view('larapay::payment.response', compact('request', 'data'));
         }
         if ($request->gateway == 1) {
-            return $request;
+            $response = new COD();
+            $data = $response->paymentResponce($request);
+            return view('larapay::payment.response', compact('request', 'data'));
         }
         if ($request->gateway == 2) {
             $response = new Razorpay();
@@ -74,13 +79,24 @@ class PaymentController extends Controller
         }
         if ($request->gateway == 3) {
             $response = new Pinelabs();
-            return  $razorpayOrder = $response->paymentResponce($request);
+            $data = $response->paymentResponce($request);
             return view('larapay::payment.response', compact('request', 'data'));
         }
         if ($request->gateway == 4) {
-            $order = new Pinelabs();
-            $orderData = $order->paymentRequest($request);
-            return view('larapay::gateways.pinelabs.purchase_redirect', compact('orderData', 'input', 'extra_input_array'));
+            Stripe::setApiKey(config('larapay.stripe.stripe_secret_key'));
+
+            Charge::create([
+                "amount" => $request->amount * 100,
+                "currency" => $request->currency,
+                "source" => $request->stripeToken,
+                "description" => $request->desscription
+            ]);
+
+            $response = new StripeRepository();
+            $data = $response->paymentResponce($request);
+            return view('larapay::payment.response', compact('request', 'data'));
+
+            return back();
         }
     }
 }

@@ -2,6 +2,10 @@
 
 return [
 
+    'settings' => [
+        'redirection_waiting_time' => env('PAYMENT_REDIRECTION_WAITIONG_TIME', 7),
+    ],
+
     'razorpay' => [
         'razorpay_key_id' => env('RAZORPAY_KEY_ID'),
         'razorpay_key_secret' => env('RAZORPAY_KEY_SECRET'),
