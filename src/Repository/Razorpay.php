@@ -6,15 +6,30 @@ use Razorpay\Api\Api;
 use Susheelbhai\Larapay\Models\Payment;
 use Razorpay\Api\Errors\SignatureVerificationError;
 
-class Razorpay{
+class Razorpay
+{
+
+    public $razorpay_key_id;
+    public $razorpay_key_secret;
+    public $payment_env;
+    public $language;
+    public $currency;
+    public function __construct()
+    {
+        $this->razorpay_key_id = config('larapay.razorpay.razorpay_key_id');
+        $this->razorpay_key_secret = config('larapay.razorpay.razorpay_key_secret');
+        $this->payment_env = config('larapay.settings.payment_env');
+        $this->language = config('larapay.settings.language');
+        $this->currency = config('larapay.settings.currency');
+    }
 
     public function paymentRequest($data)
     {
-        $api = new Api(config('larapay.razorpay.razorpay_key_id'), config('larapay.razorpay.razorpay_key_secret'));
+        $api = new Api($this->razorpay_key_id, $this->razorpay_key_secret);
         $orderData = [
             'receipt'         => 'rcptid_11',
-            'amount'          =>  $data['amount']*100, // 39900 rupees in paise
-            'currency'        => 'INR'
+            'amount'          =>  $data['amount'] * 100, // 39900 rupees in paise
+            'currency'        => $this->currency
         ];
 
         $razorpayOrder = $api->order->create($orderData);
@@ -28,7 +43,7 @@ class Razorpay{
         $error = "Payment Failed";
 
         if (empty($request['razorpay_payment_id']) === false) {
-            $api = new Api(config('larapay.razorpay.razorpay_key_id'), config('larapay.razorpay.razorpay_key_secret'));
+            $api = new Api($this->razorpay_key_id, $this->razorpay_key_secret);
 
             try {
                 // Please note that the razorpay order ID must

@@ -23,7 +23,6 @@ return new class extends Migration
             $table->string('order_id')->nullable();
             $table->string('payment_id')->nullable();
             $table->string('product_id')->nullable();
-            $table->string('payment_gateway')->nullable();
             $table->string('receipt')->nullable();
             $table->boolean('payment_status');
         });

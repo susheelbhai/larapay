@@ -4,25 +4,21 @@ namespace Susheelbhai\Larapay\Http\Controllers;
 
 use Stripe\Charge;
 use Stripe\Stripe;
-use Razorpay\Api\Api;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Session;
-use Susheelbhai\Larapay\Models\Payment;
 use Susheelbhai\Larapay\Repository\COD;
+use Susheelbhai\Larapay\Repository\CCAvanue;
 use Susheelbhai\Larapay\Repository\Pinelabs;
 use Susheelbhai\Larapay\Repository\Razorpay;
 use Susheelbhai\Larapay\Models\PaymentGateway;
-use Razorpay\Api\Errors\SignatureVerificationError;
 use Susheelbhai\Larapay\Repository\Stripe as StripeRepository;
 
 class PaymentController extends Controller
 {
-    public $gateway;
+    
     public function __construct()
     {
-        $this->gateway = PaymentGateway::whereIsActive(1)->first()->id;
+       
     }
 
     public function form()
@@ -32,7 +28,7 @@ class PaymentController extends Controller
     }
     public function index(Request $request)
     {
-          $input = $request->all();
+        $input = $request->all();
         $extra_input_array = array(
             'name' => 'Susheel Kumar Singh',
             'email' => 'susheelkrsingh306@gmail.com',
@@ -56,6 +52,11 @@ class PaymentController extends Controller
         }
         if ($request->gateway == 4) {
             return view('larapay::gateways.stripe.card_payment', compact('input'));
+        }
+        if ($request->gateway == 5) {
+            $order = new CCAvanue();
+            $orderData = $order->paymentRequest($input, $extra_input_array);
+            return view('larapay::gateways.ccavanue.purchase_redirect', compact('orderData', 'input', 'extra_input_array'));
         }
     }
 
@@ -97,6 +98,11 @@ class PaymentController extends Controller
             return view('larapay::payment.response', compact('request', 'data'));
 
             return back();
+        }
+        if (isset($request->encResp)) {
+            $response = new CCAvanue();
+             $data = $response->paymentResponce($request);
+            return view('larapay::payment.response', compact('request', 'data'));
         }
     }
 }

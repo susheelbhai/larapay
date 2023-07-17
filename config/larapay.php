@@ -3,6 +3,9 @@
 return [
 
     'settings' => [
+        'language' => 'EN',
+        'currency' => 'INR',
+        'payment_env' => env('PAYMENT_ENV', 'local'),
         'redirection_waiting_time' => env('PAYMENT_REDIRECTION_WAITIONG_TIME', 7),
     ],
 
@@ -21,6 +24,11 @@ return [
     'stripe' => [
         'stripe_publishable_key' => env('STRIPE_PUBLISHABLE_KEY'),
         'stripe_secret_key' => env('STRIPE_SECRET_KEY'),
+    ],
+    'ccavanue' => [
+        'merchant_id' => env('CCAVANUE_MERCHANT_ID'),
+        'access_code' => env('CCAVANUE_ACCESS_CODE'),
+        'working_key' => env('CCAVANUE_WORKING_KEY'),
     ],
     
 

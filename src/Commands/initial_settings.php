@@ -24,8 +24,10 @@ class initial_settings extends Command
      * Execute the console command.
      */
 
-     public $env_values = array(
-        'PAYMENT_REDIRECTION_WAITIONG_TIME' => '7',
+    public $env_values = array(
+         'PAYMENT_ENV' => 'local',
+         'PAYMENT_REDIRECTION_WAITIONG_TIME' => '7',
+
         'RAZORPAY_KEY_ID' => '',
         'RAZORPAY_KEY_SECRET' => '',
 
@@ -35,6 +37,10 @@ class initial_settings extends Command
         
         'STRIPE_PUBLISHABLE_KEY' => '',
         'STRIPE_SECRET_KEY' => '',
+        
+        'CCAVANUE_MERCHANT_ID' => '',
+        'CCAVANUE_ACCESS_CODE' => '',
+        'CCAVANUE_WORKING_KEY' => '',
     );
     public $config_values = array(
         'timezone' => 'Asia/Kolkata'
