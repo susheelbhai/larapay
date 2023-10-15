@@ -25,13 +25,15 @@ class LarapayServiceProvider extends ServiceProvider
         $this->registerPublishable();
         if ($this->app->runningInConsole()) {
             $this->commands([
-                \Susheelbhai\Larapay\Commands\initial_settings::class,
+                \Susheelbhai\Larapay\Commands\InitialSettings::class,
             ]);
         }
     }
 
     public function registerPublishable()
     {
-        
+        $this->publishes([
+            __dir__ . "/Http/Controllers/LarapayController.php" => app_path('/Http/Controllers/LarapayController.php'),
+        ], 'larapay');
     }
 }

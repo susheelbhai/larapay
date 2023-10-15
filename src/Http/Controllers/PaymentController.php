@@ -6,6 +6,7 @@ use Stripe\Charge;
 use Stripe\Stripe;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\LarapayController;
 use Susheelbhai\Larapay\Repository\COD;
 use Susheelbhai\Larapay\Repository\CCAvanue;
 use Susheelbhai\Larapay\Repository\Pinelabs;
@@ -30,6 +31,7 @@ class PaymentController extends Controller
     {
         $input = $request->all();
         $extra_input_array = array(
+            'order_id' => $input['order_id'],
             'name' => 'Susheel Kumar Singh',
             'email' => 'susheelkrsingh306@gmail.com',
             'phone' => '9090653356',
@@ -76,6 +78,10 @@ class PaymentController extends Controller
         if ($request->gateway == 2) {
             $response = new Razorpay();
             $data = $response->paymentResponce($request);
+            if ($data['success']==true) {
+                $payment = new LarapayController();
+                $payment->paymentSuccessful($request->all());
+            };
             return view('larapay::payment.response', compact('request', 'data'));
         }
         if ($request->gateway == 3) {

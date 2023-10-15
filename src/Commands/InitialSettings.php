@@ -4,7 +4,7 @@ namespace Susheelbhai\Larapay\Commands;
 
 use Illuminate\Console\Command;
 
-class initial_settings extends Command
+class InitialSettings extends Command
 {
     /**
      * The name and signature of the console command.
