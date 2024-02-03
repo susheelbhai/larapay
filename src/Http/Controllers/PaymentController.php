@@ -6,8 +6,10 @@ use Stripe\Charge;
 use Stripe\Stripe;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use App\Http\Controllers\LarapayController;
+use Susheelbhai\Larapay\Models\Payment;
 use Susheelbhai\Larapay\Repository\COD;
+use App\Http\Controllers\LarapayController;
+use Susheelbhai\Larapay\Repository\Phonepe;
 use Susheelbhai\Larapay\Repository\CCAvanue;
 use Susheelbhai\Larapay\Repository\Pinelabs;
 use Susheelbhai\Larapay\Repository\Razorpay;
@@ -16,10 +18,9 @@ use Susheelbhai\Larapay\Repository\Stripe as StripeRepository;
 
 class PaymentController extends Controller
 {
-    
+
     public function __construct()
     {
-       
     }
 
     public function form()
@@ -60,6 +61,11 @@ class PaymentController extends Controller
             $orderData = $order->paymentRequest($input, $extra_input_array);
             return view('larapay::gateways.ccavanue.purchase_redirect', compact('orderData', 'input', 'extra_input_array'));
         }
+        if ($request->gateway == 6) {
+            $order = new Phonepe();
+            $orderData = $order->paymentRequest($input, $extra_input_array);
+            return view('larapay::gateways.phonepe.purchase_redirect', compact('orderData', 'input', 'extra_input_array'));
+        }
     }
 
     public function paymentResponce(Request $request)
@@ -78,11 +84,14 @@ class PaymentController extends Controller
         if ($request->gateway == 2) {
             $response = new Razorpay();
             $data = $response->paymentResponce($request);
-            if ($data['success']==true) {
-                $payment = new LarapayController();
-                $payment->paymentSuccessful($request->all());
-            };
-            return view('larapay::payment.response', compact('request', 'data'));
+            $payment = new LarapayController();
+            if ($data['success'] == true) {
+              return  $payment->paymentSuccessful($request->all(), $data);
+            }
+            else {
+              return  $payment->paymentFailed($request->all(), $data);
+            }
+            
         }
         if ($request->gateway == 3) {
             $response = new Pinelabs();
@@ -107,8 +116,24 @@ class PaymentController extends Controller
         }
         if (isset($request->encResp)) {
             $response = new CCAvanue();
-             $data = $response->paymentResponce($request);
+            $data = $response->paymentResponce($request);
             return view('larapay::payment.response', compact('request', 'data'));
+        }
+        if ($request['merchantId'] == config('larapay.phonepe.merchant_id')) {
+            //   return  $request;
+            $payment = Payment::wherePaymentId($request['transactionId'])->first();
+
+            $request['order_id'] = $payment['order_id'];
+            $request['redirect_url'] = route('orderRequested', $payment['order_id']);
+            $response = new Phonepe();
+            $data = $response->paymentResponce($request);
+            $payment = new LarapayController();
+            if ($data['success'] == true) {
+              return  $payment->paymentSuccessful($request->all(), $data);
+            }
+            else {
+              return  $payment->paymentFailed($request->all(), $data);
+            }
         }
     }
 }

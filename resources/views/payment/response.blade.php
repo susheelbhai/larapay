@@ -68,7 +68,7 @@
                 </table>
                 <p>You should be automatically redirected in <span id="seconds">{{ $waiting_time }}</span> seconds.
                 </p>
-                <a href="{{ $request->redirect_url }}"> Redirect Now </a> 
+                <a href="{{ $request['redirect_url'] }}"> Redirect Now </a> 
             </div>
         @else
             <div class="card failed">
@@ -80,7 +80,7 @@
                 <p>If money is diducted deducted from your bank account, It will get refunded within 7 workin days. <br> Alternatively you can contact our helpdesk.</p> <br>
                 <p>You should be automatically redirected in <span id="seconds">7</span> seconds.
                 </p>
-                <a href="{{ $request->redirect_url }}"> Redirect Now </a> 
+                <a href="{{ $request['redirect_url'] }}"> Redirect Now </a> 
             </div>
         @endif
 
@@ -94,7 +94,7 @@
             var foo; // variable for clearInterval() function
     
             function redirect() {
-                document.location.href = '{{ $request->redirect_url }}';
+                document.location.href = '{{ $request['redirect_url'] }}';
             }
     
             function updateSecs() {

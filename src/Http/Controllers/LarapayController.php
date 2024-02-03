@@ -6,6 +6,9 @@ namespace App\Http\Controllers;
 class LarapayController extends Controller
 {
     public function paymentSuccessful($request) {
-        
+        return view('larapay::payment.response', compact('request', 'data'));
+    }
+    public function paymentFailed($request) {
+        return view('larapay::payment.response', compact('request', 'data'));
     }
 }

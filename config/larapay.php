@@ -30,6 +30,10 @@ return [
         'access_code' => env('CCAVANUE_ACCESS_CODE'),
         'working_key' => env('CCAVANUE_WORKING_KEY'),
     ],
+    'phonepe' => [
+        'merchant_id' => env('PHONEPE_MERCHANT_ID'),
+        'api_key' => env('PHONEPE_API_KEY'),
+    ],
     
 
     
