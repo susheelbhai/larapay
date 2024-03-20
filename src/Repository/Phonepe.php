@@ -119,6 +119,7 @@ class Phonepe
                 'payment_data' => [
                     'order_id' => $request['transactionId'],
                     'payment_id' => '',
+                    'amount' => $request['amount'],
                 ]
             ];
         } else {

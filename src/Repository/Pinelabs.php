@@ -113,6 +113,7 @@ class Pinelabs
                 'payment_data' => [
                     'order_id' => $request['razorpay_order_id'],
                     'payment_id' => $request['razorpay_payment_id'],
+                    'amount' => $request['amount'],
                 ]
             ];
         } else {

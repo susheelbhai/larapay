@@ -25,9 +25,14 @@ class COD{
         if ($success === true) {
             
             $data = [
+                'success' =>  true,
                 'redirect_url' => $request->redirect_url,
                 'msg' => 'payment successful',
-                'success' =>  true
+                'payment_data' => [
+                    'order_id' => $request['razorpay_order_id'],
+                    'payment_id' => $request['razorpay_payment_id'],
+                    'amount' => $request['amount'],
+                ]
             ];
         } else {
             $data = [

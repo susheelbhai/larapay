@@ -24,7 +24,8 @@ class LarapayController extends Controller
             ['payment_id' => $data['payment_data']['payment_id']],
             [
                 'order_id' => $data['payment_data']['order_id'],
-                'amount' => $request['amount'],
+                'amount' => $data['payment_data']['amount'],
+                'payment_status'=>1,
             ]
         );
         return true;
