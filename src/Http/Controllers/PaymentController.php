@@ -2,13 +2,12 @@
 
 namespace Susheelbhai\Larapay\Http\Controllers;
 
-use Stripe\Charge;
-use Stripe\Stripe;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use Susheelbhai\Larapay\Models\Payment;
 use Susheelbhai\Larapay\Repository\COD;
+use Susheelbhai\Larapay\Repository\Stripe;
 use App\Http\Controllers\LarapayController;
+use Susheelbhai\Larapay\Models\PaymentTemp;
 use Susheelbhai\Larapay\Repository\Phonepe;
 use Susheelbhai\Larapay\Repository\CCAvanue;
 use Susheelbhai\Larapay\Repository\Pinelabs;
@@ -18,122 +17,104 @@ use Susheelbhai\Larapay\Repository\Stripe as StripeRepository;
 
 class PaymentController extends Controller
 {
-
-    public function __construct()
-    {
+    public $gateway;
+    public function __construct() {
+        $this->gateway = config('payment.gateway_id');
     }
 
     public function form()
     {
+        if (config('app.env') != 'local') {
+            abort(404);
+        }
         $gateways = PaymentGateway::whereIsActive(1)->get();
         return view('larapay::payment.form', compact('gateways'));
     }
+
     public function index(Request $request)
     {
+        $gateway = $request['gateway'] ?? $this->gateway;
         $input = $request->all();
-        $extra_input_array = array(
-            'order_id' => $input['order_id'],
-            'name' => 'Susheel Kumar Singh',
-            'email' => 'susheelkrsingh306@gmail.com',
-            'phone' => '9090653356',
-            'redirect_url' => $input['redirect_url'],
-            'gateway' => $input['gateway'],
-        );
-
-        if ($request->gateway == 1) {
-            return view('larapay::gateways.cod.confirmation', compact('input'));
+        if ($gateway == 1) {
+            $order = new COD();
+            $view = 'larapay::gateways.cod.confirmation';
         }
-        if ($request->gateway == 2) {
+        if ($gateway == 2) {
             $order = new Razorpay();
-            $razorpayOrder = $order->paymentRequest($input);
-            return view('larapay::payment.index', compact('razorpayOrder', 'input', 'extra_input_array'));
+            $view = 'larapay::payment.index';
         }
-        if ($request->gateway == 3) {
+        if ($gateway == 3) {
             $order = new Pinelabs();
-            $orderData = $order->paymentRequest($input);
-            return view('larapay::gateways.pinelabs.purchase_redirect', compact('orderData', 'input', 'extra_input_array'));
+            $view = 'larapay::gateways.pinelabs.purchase_redirect';
         }
-        if ($request->gateway == 4) {
-            return view('larapay::gateways.stripe.card_payment', compact('input'));
+        if ($gateway == 4) {
+            $order = new Stripe();
+            $view = 'larapay::gateways.stripe.card_payment';
         }
-        if ($request->gateway == 5) {
+        if ($gateway == 5) {
             $order = new CCAvanue();
-            $orderData = $order->paymentRequest($input, $extra_input_array);
-            return view('larapay::gateways.ccavanue.purchase_redirect', compact('orderData', 'input', 'extra_input_array'));
+            $view = 'larapay::gateways.ccavanue.purchase_redirect';
         }
-        if ($request->gateway == 6) {
+        if ($gateway == 6) {
             $order = new Phonepe();
-            $orderData = $order->paymentRequest($input, $extra_input_array);
-            return view('larapay::gateways.phonepe.purchase_redirect', compact('orderData', 'input', 'extra_input_array'));
+            $view = 'larapay::gateways.phonepe.purchase_redirect';
+        }
+        $obj = new LarapayController();
+        $orderData = $order->paymentRequest($input);
+        $obj->updateTempTable($orderData['order_id'], $input);
+        return view($view, compact('orderData', 'input'));
+    }
+
+    function webhook(Request $request, $gateway)
+    {
+        if (config('app.env') != 'local') {
+            return $this->webhookResponse($request, $gateway);
         }
     }
 
     public function paymentResponce(Request $request)
     {
-        // return $request;
+        $gateway = $request['gateway'] ?? '';
+        // dd($request);
         if (isset($request->ppc_MerchantID)) {
             $response = new Pinelabs();
-            $data = $response->paymentResponce($request);
-            return view('larapay::payment.response', compact('request', 'data'));
         }
-        if ($request->gateway == 1) {
+        if ($gateway == 1) {
             $response = new COD();
-            $data = $response->paymentResponce($request);
-            return view('larapay::payment.response', compact('request', 'data'));
         }
-        if ($request->gateway == 2) {
+        if ($gateway == 2) {
             $response = new Razorpay();
-            $data = $response->paymentResponce($request);
-            $payment = new LarapayController();
-            if ($data['success'] == true) {
-              return  $payment->paymentSuccessful($request->all(), $data);
-            }
-            else {
-              return  $payment->paymentFailed($request->all(), $data);
-            }
-            
         }
-        if ($request->gateway == 3) {
+        if ($gateway == 3) {
             $response = new Pinelabs();
-            $data = $response->paymentResponce($request);
-            return view('larapay::payment.response', compact('request', 'data'));
         }
-        if ($request->gateway == 4) {
-            Stripe::setApiKey(config('larapay.stripe.stripe_secret_key'));
-
-            Charge::create([
-                "amount" => $request->amount * 100,
-                "currency" => $request->currency,
-                "source" => $request->stripeToken,
-                "description" => $request->desscription
-            ]);
-
+        if (isset($request->stripeToken)) {
             $response = new StripeRepository();
-            $data = $response->paymentResponce($request);
-            return view('larapay::payment.response', compact('request', 'data'));
-
-            return back();
         }
+
         if (isset($request->encResp)) {
             $response = new CCAvanue();
-            $data = $response->paymentResponce($request);
-            return view('larapay::payment.response', compact('request', 'data'));
         }
         if ($request['merchantId'] == config('larapay.phonepe.merchant_id')) {
-            //   return  $request;
-            $payment = Payment::wherePaymentId($request['transactionId'])->first();
-
-            $request['order_id'] = $payment['order_id'];
-            $request['redirect_url'] = route('orderRequested', $payment['order_id']);
             $response = new Phonepe();
-            $data = $response->paymentResponce($request);
-            $payment = new LarapayController();
-            if ($data['success'] == true) {
-              return  $payment->paymentSuccessful($request->all(), $data);
-            }
-            else {
-              return  $payment->paymentFailed($request->all(), $data);
-            }
         }
+        $payment_temp = PaymentTemp::whereOrderId($request['razorpay_order_id'])->first();
+        $data = $response->paymentResponce($request);
+        $payment = new LarapayController();
+        if ($data['success'] == true) {
+            $payment->paymentSuccessful($request->all(), $data, $payment_temp);
+        } else {
+            $payment->paymentFailed($request->all(), $data, $payment_temp);
+        }
+        
+        return view('larapay::payment.response', compact('request', 'data'));
+    }
+
+    public function webhookResponse($request, $gateway)
+    {
+        if ($gateway == 'razorpay') {
+            $response = new Razorpay();
+        }
+        return $response->webhook($request);
     }
 }

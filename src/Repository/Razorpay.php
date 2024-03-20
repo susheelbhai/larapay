@@ -4,6 +4,8 @@ namespace Susheelbhai\Larapay\Repository;
 
 use Razorpay\Api\Api;
 use Susheelbhai\Larapay\Models\Payment;
+use App\Http\Controllers\LarapayController;
+use Susheelbhai\Larapay\Models\PaymentTemp;
 use Razorpay\Api\Errors\SignatureVerificationError;
 
 class Razorpay
@@ -33,13 +35,13 @@ class Razorpay
         ];
 
         $razorpayOrder = $api->order->create($orderData);
+        $razorpayOrder['order_id'] = $razorpayOrder['id'];
         return $razorpayOrder;
     }
 
     public function paymentResponce($request)
     {
         $success = true;
-
         $error = "Payment Failed";
 
         if (empty($request['razorpay_payment_id']) === false) {
@@ -54,7 +56,6 @@ class Razorpay
                     'razorpay_payment_id' => $request['razorpay_payment_id'],
                     'razorpay_signature' => $request['razorpay_signature']
                 );
-
                 $api->utility->verifyPaymentSignature($attributes);
             } catch (SignatureVerificationError $e) {
                 $success = false;
@@ -63,27 +64,49 @@ class Razorpay
         }
 
         if ($success === true) {
-            Payment::updateOrCreate(
-                ['payment_id' => $request->razorpay_payment_id],
-                [
-                    'payment_gateway_id' => $request->gateway,
-                    'order_id' => $request->razorpay_order_id,
-                    'email' => $request->email,
-                    'phone' => $request->phone,
-                    'payment_status' => 1,
-                ]
-            );
             $data = [
+                'success' =>  true,
                 'redirect_url' => $request->redirect_url,
                 'msg' => 'payment successful',
-                'success' =>  true
+                'payment_data' => [
+                    'order_id' => $request['razorpay_order_id'],
+                    'payment_id' => $request['razorpay_payment_id'],
+                ]
             ];
         } else {
             $data = [
                 'redirect_url' => $request->redirect_url,
+                'msg' => 'payment failed',
                 'msg' => $error
             ];
         }
         return $data;
+    }
+
+    public function webhook($request)
+    {
+        $order_id = $request['payload']['payment']['entity']['order_id'];
+        $payment_id = $request['payload']['payment']['entity']['id'];
+        $payment_temp = PaymentTemp::whereOrderId($order_id)->first();
+        $request['razorpay_order_id'] = $order_id;
+        $request['razorpay_payment_id'] = $payment_id;
+        if ($request['event'] == 'payment.captured') {
+            $payment_count = Payment::whereOrderId($order_id)->count();
+            if (isset($payment_temp) && $payment_count == 0) {
+                $data = [
+                    'success' =>  true,
+                    'redirect_url' => $request->redirect_url,
+                    'msg' => 'payment successful',
+                    'payment_data' => [
+                        'order_id' => $request['razorpay_order_id'],
+                        'payment_id' => $request['razorpay_payment_id'],
+                    ]
+                ];
+                $payment = new LarapayController();
+                $payment->paymentSuccessful($request->all(), $data, $payment_temp);
+            }
+            return true;
+        }
+        return $request;
     }
 }

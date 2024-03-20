@@ -1,7 +1,7 @@
 @extends('larapay::layouts.app')
 
 @section('head')
-    <title>Payment</title>
+    <title>Payment to {{ config('app.name') }}</title>
 @endsection
 
 @section('content')
@@ -12,21 +12,20 @@
         <input type="hidden" name="razorpay_order_id" id="razorpay_order_id">
         <input type="hidden" name="razorpay_payment_id" id="razorpay_payment_id">
         <input type="hidden" name="razorpay_signature" id="razorpay_signature">
-        @foreach ($extra_input_array as $index => $i)
+        @foreach ($input as $index => $i)
             <input type="hidden" name="{{ $index }}" value="{{ $i }}">
         @endforeach
-        {!! $extra_input ?? '' !!}
     </form>
 
     <script>
         var options = {
-            "key": "{{ env('RAZORPAY_KEY_ID') }}", // Enter the Key ID generated from the Dashboard
+            "key": "{{ config('larapay.razorpay.razorpay_key_id') }}", // Enter the Key ID generated from the Dashboard
             "amount": "50000", // Amount is in currency subunits. Default currency is INR. Hence, 50000 refers to 50000 paise
             "currency": "INR",
-            "name": "{{ $input['app_name'] ?? 'Larapay ' }}",
+            "name": "{{ $input['app_name'] ?? config('app.name')}}",
             "description": "{{ $input['description'] ?? 'description' }}",
-            "image": "https://example.com/your_logo",
-            "order_id": "{{ $razorpayOrder->id }}", //This is a sample Order ID. Pass the `id` obtained in the response of Step 1
+            "image": "{{ config('app.logo_light') }}",
+            "order_id": "{{ $orderData->id }}", //This is a sample Order ID. Pass the `id` obtained in the response of Step 1
             "handler": function(response) {
                 document.getElementById('razorpay_order_id').value = response.razorpay_order_id;
                 document.getElementById('razorpay_payment_id').value = response.razorpay_payment_id;

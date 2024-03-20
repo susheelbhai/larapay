@@ -23,18 +23,18 @@ class CCAvanue
         $this->language = config('larapay.settings.language');
         $this->currency = config('larapay.settings.currency');
     }
-    public function paymentRequest($input, $extra_input_array)
+    public function paymentRequest($input)
     {
 
         $merchant_data = '';
-
+        $order_id =rand(11111111, 999999999);
         foreach ($input as $key => $value) {
             $merchant_data .= $key . '=' . urlencode($value) . '&';
         }
 
         $formdata = array(
             'merchant_id'   =>    $this->merchant_id,
-            'order_id'      =>    rand(11111111, 999999999),
+            'order_id'      =>    $order_id,
             'amount'        =>    $input['amount'],
             'currency'      =>    $this->currency,
             'redirect_url'  =>    route('callback_url'),
@@ -80,6 +80,7 @@ class CCAvanue
             'merchant_data' => $merchant_data,
             'access_code' => $this->access_code,
             'action_url' => $action_url,
+            'order_id' => $order_id,
         );
         return $response;
     }
@@ -103,22 +104,16 @@ class CCAvanue
         if ($response['status_message'] != 'Y') {
             $success = false;
         }
-        $request->redirect_url = route('payment_form');
+        $request->redirect_url = route('pay');
         if ($success === true) {
-            Payment::updateOrCreate(
-                ['order_id' => $response['order_id']],
-                [
-                    'payment_gateway_id' => 5,
-                    'email' => $response['billing_email'],
-                    'phone' => $response['billing_tel'],
-                    'amount' => $response['amount'],
-                    'payment_status' => 1,
-                ]
-            );
             $data = [
+                'success' =>  true,
                 'redirect_url' => $request->redirect_url,
                 'msg' => 'payment successful',
-                'success' => true
+                'payment_data' => [
+                    'order_id' => $request['razorpay_order_id'],
+                    'payment_id' => $request['razorpay_payment_id'],
+                ]
             ];
         } else {
             $data = [

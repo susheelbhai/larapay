@@ -14,7 +14,7 @@
                 Payment Detail
             </div>
             <div class="card-body">
-                <form class="row g-3 needs-validation" action="{{ route('payment_form') }}" method="post">
+                <form class="row g-3 needs-validation" action="{{ route('pay') }}" method="post">
                     @csrf
                     <div class="col-md-6">
                         <label for="name" class="form-label"> Name</label>

@@ -2,36 +2,37 @@
 
 namespace Susheelbhai\Larapay\Repository;
 
-use Susheelbhai\Larapay\Models\Payment;
-
-class Stripe{
-
+class Stripe
+{
+    public function paymentRequest($data)
+    {
+        $data = [
+            'order_id' => rand(1111, 9999)
+        ];
+        return $data;
+    }
     public function paymentResponce($request)
     {
         $success = true;
 
         $error = "Payment Failed";
 
+        \Stripe\Stripe::setApiKey(config('larapay.stripe.stripe_secret_key'));
 
         if ($success === true) {
-            Payment::updateOrCreate(
-                ['payment_id' => $request->razorpay_payment_id],
-                [
-                    'payment_gateway_id' => $request->gateway,
-                    'order_id' => $request->razorpay_order_id,
-                    'email' => $request->email,
-                    'phone' => $request->phone,
-                    'payment_status' => 1,
-                ]
-            );
             $data = [
+                'success' =>  true,
                 'redirect_url' => $request->redirect_url,
                 'msg' => 'payment successful',
-                'success' =>  true
+                'payment_data' => [
+                    'order_id' => $request['razorpay_order_id'],
+                    'payment_id' => $request['razorpay_payment_id'],
+                ]
             ];
         } else {
             $data = [
                 'redirect_url' => $request->redirect_url,
+                'msg' => 'payment failed',
                 'msg' => $error
             ];
         }

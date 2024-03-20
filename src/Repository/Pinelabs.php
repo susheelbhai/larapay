@@ -87,6 +87,7 @@ class Pinelabs
         $hash = strtoupper(hash_hmac('sha256', $strFormdata, $secret_key));
 
         $response = array(
+            'order_id' => 8946,
             'formdata' => $formdata,
             'ppc_DIA_SECRET_TYPE' => $ppc_DIA_SECRET_TYPE,
             'hash' => $hash,
@@ -103,21 +104,16 @@ class Pinelabs
         if ($request['ppc_TxnResponseMessage'] != 'SUCCESS') {
             $success = false;
         }
-        $request->redirect_url = route('payment_form');
+        $request->redirect_url = route('pay');
         if ($success === true) {
-            Payment::updateOrCreate(
-                ['order_id' => $request->ppc_UniqueMerchantTxnID],
-                [
-                    'payment_gateway_id' => $request->gateway,
-                    'email' => $request->email,
-                    'phone' => $request->phone,
-                    'payment_status' => 1,
-                ]
-            );
             $data = [
+                'success' =>  true,
                 'redirect_url' => $request->redirect_url,
                 'msg' => 'payment successful',
-                'success' => true
+                'payment_data' => [
+                    'order_id' => $request['razorpay_order_id'],
+                    'payment_id' => $request['razorpay_payment_id'],
+                ]
             ];
         } else {
             $data = [

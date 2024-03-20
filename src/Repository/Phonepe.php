@@ -2,9 +2,6 @@
 
 namespace Susheelbhai\Larapay\Repository;
 
-use Susheelbhai\Larapay\Models\Payment;
-
-
 class Phonepe
 {
 
@@ -21,10 +18,12 @@ class Phonepe
         $this->language = config('larapay.settings.language');
         $this->currency = config('larapay.settings.currency');
     }
-    public function paymentRequest($input, $extra_input_array)
+    public function paymentRequest($input)
     {
 
         // return $input['order_id'];
+        $order_id =rand(11111111, 999999999);
+        $action_url = 'undefined';
         $merchantTransactionId = "gd" . rand(2424, 444444444444);
         $paymentData = array(
             'merchantId' => $this->merchant_id,
@@ -99,16 +98,10 @@ class Phonepe
             }
         }
 
-        Payment::updateOrCreate([
-            'order_id' => $input['order_id'],
-            'payment_gateway_id' => 6,
-            'payment_id' => $merchantTransactionId,
-            'payment_status' => 0,
-        ]);
-
         $response = array(
             'phonepe_data' => $res,
             'action_url' => $action_url,
+            'order_id' => $order_id,
         );
         return $response;
     }
@@ -117,21 +110,16 @@ class Phonepe
     {
         // return $request;
 
-        $request->redirect_url = route('payment_form');
+        $request->redirect_url = route('pay');
         if ($request['code'] == 'PAYMENT_SUCCESS') {
-            Payment::updateOrCreate(
-                ['order_id' => $request['order_id']],
-                [
-                    'amount' => $request['amount'] / 100,
-                    'payment_status' => 1,
-                ]
-            );
             $data = [
+                'success' =>  true,
                 'redirect_url' => $request->redirect_url,
                 'msg' => 'payment successful',
-                'success' => true,
-                'order_id' => $request['transactionId'],
-                'amount' => $request['amount'] / 100
+                'payment_data' => [
+                    'order_id' => $request['transactionId'],
+                    'payment_id' => '',
+                ]
             ];
         } else {
             $data = [

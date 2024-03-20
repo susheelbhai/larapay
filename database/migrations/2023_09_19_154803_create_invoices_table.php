@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('invoices', function (Blueprint $table) {
             $table->id();
             $table->timestamps();
-            $table->foreignId('order_id')->nullable()->references('id')->on('orders');
+            // $table->foreignId('order_id')->nullable()->references('id')->on('orders');
             $table->date('due_date')->nullable();
             $table->string('invoice')->nullable();
         });

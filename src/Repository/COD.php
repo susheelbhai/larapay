@@ -8,7 +8,10 @@ class COD{
 
     public function paymentRequest($data)
     {
-        return true;
+        $data = [
+            'order_id' => rand(1111,9999)
+        ];
+        return $data;
     }
 
     public function paymentResponce($request)

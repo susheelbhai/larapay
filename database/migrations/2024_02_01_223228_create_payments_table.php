@@ -25,6 +25,14 @@ return new class extends Migration
             $table->string('payment_id')->nullable();
             $table->string('product_id')->nullable();
             $table->string('receipt')->nullable();
+            $table->string('billing_gstin')->nullable();
+            $table->string('billing_name')->nullable();
+            $table->string('billing_email')->nullable();
+            $table->string('billing_phone')->nullable();
+            $table->string('billing_address')->nullable();
+            $table->string('billing_city')->nullable();
+            $table->string('billing_pin')->nullable();
+            $table->string('billing_state_id')->nullable()->references('id')->on('states');
             $table->boolean('payment_status');
         });
     }
