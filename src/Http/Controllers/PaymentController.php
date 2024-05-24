@@ -82,7 +82,7 @@ class PaymentController extends Controller
         if ($gateway == 1) {
             $response = new COD();
         }
-        if ($gateway == 2) {
+        if (isset($request->razorpay_order_id)) {
             $response = new Razorpay();
         }
         if ($gateway == 3) {
