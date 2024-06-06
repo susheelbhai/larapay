@@ -27,16 +27,21 @@ class Razorpay
 
     public function paymentRequest($data)
     {
-        $api = new Api($this->razorpay_key_id, $this->razorpay_key_secret);
+        try {
+            $api = new Api($this->razorpay_key_id, $this->razorpay_key_secret);
         $orderData = [
             'receipt'         => 'rcptid_11',
-            'amount'          =>  $data['amount'] * 100, // 39900 rupees in paise
+            'amount'          =>  $data['amount'] * 100, // amount rupees in paise
             'currency'        => $this->currency
         ];
 
         $razorpayOrder = $api->order->create($orderData);
         $razorpayOrder['order_id'] = $razorpayOrder['id'];
-        return $razorpayOrder;
+            return response(['data' => $razorpayOrder], 200);
+        } catch (\Exception $th) {
+            $code = $th->getCode() == 0 ? 500 : $th->getHttpStatusCode();
+            return response($th, $code);
+        }
     }
 
     public function paymentResponce($request)

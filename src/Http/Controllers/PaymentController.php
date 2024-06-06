@@ -18,7 +18,8 @@ use Susheelbhai\Larapay\Repository\Stripe as StripeRepository;
 class PaymentController extends Controller
 {
     public $gateway;
-    public function __construct() {
+    public function __construct()
+    {
         $this->gateway = config('payment.gateway_id');
     }
 
@@ -60,7 +61,11 @@ class PaymentController extends Controller
             $view = 'larapay::gateways.phonepe.purchase_redirect';
         }
         $obj = new LarapayController();
-        $orderData = $order->paymentRequest($input);
+        $response = $order->paymentRequest($input);
+        if ($response->status() != 200) {
+            return view('larapay::errors.error', compact('response'));
+        }
+        $orderData = $response->getOriginalContent()['data'];
         $obj->updateTempTable($orderData['order_id'], $input);
         return view($view, compact('orderData', 'input'));
     }
@@ -82,7 +87,7 @@ class PaymentController extends Controller
         if ($gateway == 1) {
             $response = new COD();
         }
-        if (isset($request->razorpay_order_id)) {
+        if ($gateway == 2) {
             $response = new Razorpay();
         }
         if ($gateway == 3) {
@@ -106,7 +111,7 @@ class PaymentController extends Controller
         } else {
             $payment->paymentFailed($request->all(), $data, $payment_temp);
         }
-        
+
         return view('larapay::payment.response', compact('request', 'data'));
     }
 

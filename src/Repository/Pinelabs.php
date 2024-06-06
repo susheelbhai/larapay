@@ -92,7 +92,7 @@ class Pinelabs
             'ppc_DIA_SECRET_TYPE' => $ppc_DIA_SECRET_TYPE,
             'hash' => $hash,
         );
-        return $response;
+        return response(['data'=>$response], 200);
     }
 
     public function paymentResponce($request)

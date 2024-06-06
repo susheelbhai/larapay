@@ -11,7 +11,7 @@ class COD{
         $data = [
             'order_id' => rand(1111,9999)
         ];
-        return $data;
+        return response(['data'=>$data], 200);
     }
 
     public function paymentResponce($request)

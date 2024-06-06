@@ -26,6 +26,7 @@ class InitialSettings extends Command
 
     public $env_values = array(
          'PAYMENT_ENV' => 'local',
+         'PAYMENT_GATEWAY_ID' => '2',
          'PAYMENT_REDIRECTION_WAITIONG_TIME' => '7',
 
         'RAZORPAY_KEY_ID' => '',
@@ -37,6 +38,9 @@ class InitialSettings extends Command
         
         'STRIPE_PUBLISHABLE_KEY' => '',
         'STRIPE_SECRET_KEY' => '',
+        
+        'PHONEPE_MERCHANT_ID' => '',
+        'PHONEPE_API_KEY' => '',
         
         'CCAVANUE_MERCHANT_ID' => '',
         'CCAVANUE_ACCESS_CODE' => '',

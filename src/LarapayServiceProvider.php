@@ -34,6 +34,8 @@ class LarapayServiceProvider extends ServiceProvider
     {
         $this->publishes([
             __dir__ . "/Http/Controllers/LarapayController.php" => app_path('/Http/Controllers/LarapayController.php'),
+            __dir__ . "/../config/payment.php" => config_path('/payment.php'),
+
         ], 'larapay');
     }
 }

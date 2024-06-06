@@ -103,7 +103,7 @@ class Phonepe
             'action_url' => $action_url,
             'order_id' => $order_id,
         );
-        return $response;
+        return response(['data'=>$response], 200);
     }
 
     public function paymentResponce($request)
