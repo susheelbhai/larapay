@@ -80,7 +80,6 @@ class PaymentController extends Controller
     public function paymentResponce(Request $request)
     {
         $gateway = $request['gateway'] ?? '';
-        // dd($request);
         if (isset($request->ppc_MerchantID)) {
             $response = new Pinelabs();
         }
@@ -100,7 +99,7 @@ class PaymentController extends Controller
         if (isset($request->encResp)) {
             $response = new CCAvanue();
         }
-        if ($request['merchantId'] == config('larapay.phonepe.merchant_id')) {
+        if (isset($request['merchantId']) && $request['merchantId'] == config('larapay.phonepe.merchant_id')) {
             $response = new Phonepe();
         }
         $payment_temp = PaymentTemp::whereOrderId($request['razorpay_order_id'])->first();
