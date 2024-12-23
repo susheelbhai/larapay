@@ -79,7 +79,7 @@ class PaymentController extends Controller
 
     public function paymentResponce(Request $request)
     {
-        $gateway = $request['gateway'] ?? '';
+        $gateway = $request['gateway'] ?? $this->gateway;
         if (isset($request->ppc_MerchantID)) {
             $response = new Pinelabs();
         }
