@@ -7,6 +7,7 @@ return [
         'currency' => 'INR',
         'payment_env' => env('PAYMENT_ENV', 'local'),
         'redirection_waiting_time' => env('PAYMENT_REDIRECTION_WAITIONG_TIME', 7),
+        'unable_payment_response' => env('UNABLE_PAYMENT_RESPONSE', 0),
     ],
 
     'razorpay' => [
@@ -33,6 +34,10 @@ return [
     'phonepe' => [
         'merchant_id' => env('PHONEPE_MERCHANT_ID', '625325'),
         'api_key' => env('PHONEPE_API_KEY', '625325'),
+    ],
+    'cashfree' => [
+        'app_id' => env('CASHFREE_APP_ID', '625325'),
+        'secret_key' => env('CASHFREE_SECRET_KEY', '625325'),
     ],
     
 ];

@@ -28,6 +28,7 @@ class InitialSettings extends Command
          'PAYMENT_ENV' => 'local',
          'PAYMENT_GATEWAY_ID' => '2',
          'PAYMENT_REDIRECTION_WAITIONG_TIME' => '7',
+         'UNABLE_PAYMENT_RESPONSE' => '0',
 
         'RAZORPAY_KEY_ID' => '',
         'RAZORPAY_KEY_SECRET' => '',
@@ -45,6 +46,9 @@ class InitialSettings extends Command
         'CCAVANUE_MERCHANT_ID' => '',
         'CCAVANUE_ACCESS_CODE' => '',
         'CCAVANUE_WORKING_KEY' => '',
+
+        'CASHFREE_APP_ID' => '',
+        'CASHFREE_SECRET_KEY' => '',
     );
     public $config_values = array(
         'timezone' => 'Asia/Kolkata'

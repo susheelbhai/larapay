@@ -3,9 +3,6 @@
 namespace Susheelbhai\Larapay\Repository;
 
 use Razorpay\Api\Api;
-use Susheelbhai\Larapay\Models\Payment;
-use App\Http\Controllers\LarapayController;
-use Susheelbhai\Larapay\Models\PaymentTemp;
 use Razorpay\Api\Errors\SignatureVerificationError;
 
 class Razorpay
@@ -48,8 +45,8 @@ class Razorpay
     {
         $success = true;
         $error = "Payment Failed";
-
-        if (empty($request['razorpay_payment_id']) === false) {
+        // dd($request);
+        if (empty($request['payment_id']) === false) {
             $api = new Api($this->razorpay_key_id, $this->razorpay_key_secret);
 
             try {
@@ -57,8 +54,8 @@ class Razorpay
                 // come from a trusted source (session here, but
                 // could be database or something else)
                 $attributes = array(
-                    'razorpay_order_id' => $request['razorpay_order_id'],
-                    'razorpay_payment_id' => $request['razorpay_payment_id'],
+                    'razorpay_order_id' => $request['order_id'],
+                    'razorpay_payment_id' => $request['payment_id'],
                     'razorpay_signature' => $request['razorpay_signature']
                 );
                 $api->utility->verifyPaymentSignature($attributes);
@@ -74,8 +71,8 @@ class Razorpay
                 'redirect_url' => $request->redirect_url,
                 'msg' => 'payment successful',
                 'payment_data' => [
-                    'order_id' => $request['razorpay_order_id'],
-                    'payment_id' => $request['razorpay_payment_id'],
+                    'order_id' => $request['order_id'],
+                    'payment_id' => $request['payment_id'],
                     'amount' => $request['amount'],
                 ]
             ];
@@ -89,30 +86,4 @@ class Razorpay
         return $data;
     }
 
-    public function webhook($request)
-    {
-        $order_id = $request['payload']['payment']['entity']['order_id'];
-        $payment_id = $request['payload']['payment']['entity']['id'];
-        $payment_temp = PaymentTemp::whereOrderId($order_id)->first();
-        $request['razorpay_order_id'] = $order_id;
-        $request['razorpay_payment_id'] = $payment_id;
-        if ($request['event'] == 'payment.captured') {
-            $payment_count = Payment::whereOrderId($order_id)->count();
-            if (isset($payment_temp) && $payment_count == 0) {
-                $data = [
-                    'success' =>  true,
-                    'redirect_url' => $request->redirect_url,
-                    'msg' => 'payment successful',
-                    'payment_data' => [
-                        'order_id' => $request['razorpay_order_id'],
-                        'payment_id' => $request['razorpay_payment_id'],
-                    ]
-                ];
-                $payment = new LarapayController();
-                $payment->paymentSuccessful($request->all(), $data, $payment_temp);
-            }
-            return true;
-        }
-        return $request;
-    }
 }
