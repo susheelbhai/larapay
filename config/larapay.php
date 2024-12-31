@@ -34,6 +34,8 @@ return [
     'phonepe' => [
         'merchant_id' => env('PHONEPE_MERCHANT_ID', '625325'),
         'api_key' => env('PHONEPE_API_KEY', '625325'),
+        'salt_key' => env('PHONEPE_SALT_KEY', '625325'),
+        'salt_index' => env('PHONEPE_SALT_INDEX', '1'),
     ],
     'cashfree' => [
         'app_id' => env('CASHFREE_APP_ID', '625325'),

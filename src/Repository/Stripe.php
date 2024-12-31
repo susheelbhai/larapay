@@ -6,10 +6,11 @@ class Stripe
 {
     public function paymentRequest($data)
     {
+        
         $data = [
             'order_id' => rand(1111, 9999)
         ];
-        return response(['data'=>$data], 200);
+        return response(['data' => $data], 200);
     }
     public function paymentResponce($request)
     {

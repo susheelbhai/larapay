@@ -8,6 +8,8 @@ use Susheelbhai\Larapay\Models\Payment;
 use Susheelbhai\Larapay\Repository\COD;
 use Susheelbhai\Larapay\Repository\Stripe;
 use App\Http\Controllers\LarapayController;
+use Illuminate\Support\Facades\Mail;
+use Susheelbhai\Larapay\Mail\WebhookEmail;
 use Susheelbhai\Larapay\Models\PaymentTemp;
 use Susheelbhai\Larapay\Repository\Phonepe;
 use Susheelbhai\Larapay\Repository\Cashfree;
@@ -35,7 +37,10 @@ class PaymentController extends Controller
 
     public function index(Request $request)
     {
+
+        $obj = new LarapayController();
         $gateway = $request['gateway'] ?? $this->gateway;
+        $obj->preOrderMethod($request, $gateway);
         $input = $request->all();
         switch ($gateway) {
             case 1:
@@ -73,13 +78,12 @@ class PaymentController extends Controller
         }
 
 
-        $obj = new LarapayController();
         $response = $order->paymentRequest($input);
         if ($response->status() != 200) {
             return view('larapay::errors.error', compact('response'));
         }
         $orderData = $response->getOriginalContent()['data'];
-        $obj->updateTempTable($request, $orderData['order_id'], $gateway);
+        $obj->postOrderMethod($request, $orderData['order_id'], $gateway);
         $input = $request->all();
         return view($view, compact('orderData', 'input'));
     }
@@ -95,6 +99,10 @@ class PaymentController extends Controller
     }
     function webhook(Request $request, $gateway)
     {
+        // to test whether webhook called or nor or to see the response of webhook, you can send an test email with the response data by uncommenting the below code
+        // Mail::send("test@wxample.com")->send(new WebhookEmail($request));
+
+
         switch ($gateway) {
             case 2:
                 $data = [
@@ -102,6 +110,19 @@ class PaymentController extends Controller
                     'payment_id' => $request['payload']['payment']['entity']['id'],
                     'event' => $request['event'],
                 ];
+                break;
+            case 6:
+                $request = json_decode(base64_decode($request['response']));
+                if ($request->code == 'PAYMENT_SUCCESS') {
+                    $event_type = 'payment.captured';
+                }
+
+                $data = [
+                    'order_id' => $request->data->merchantTransactionId,
+                    'payment_id' => $request->data->transactionId,
+                    'event' => $event_type,
+                ];
+
                 break;
             case 7:
                 if ($request['type'] == 'PAYMENT_SUCCESS_WEBHOOK') {
@@ -122,14 +143,15 @@ class PaymentController extends Controller
                 ];
                 break;
         }
-        
+
         return $this->webhookResponse($data);
     }
 
     public function paymentResponce(Request $request)
     {
+
         $payment_temp = PaymentTemp::whereOrderId($request['order_id'])->first();
-        // dd($payment_temp['payment_gateway_id']);
+        // return $payment_temp;
         switch ($payment_temp['payment_gateway_id']) {
             case 1:
                 $response = new COD();
@@ -152,7 +174,7 @@ class PaymentController extends Controller
             case 7:
                 $response = new Cashfree();
                 break;
-            
+
             default:
                 # code...
                 break;
@@ -166,7 +188,6 @@ class PaymentController extends Controller
                 $payment->paymentFailed($request->all(), $data, $payment_temp);
             }
         }
-        // dd($data);
 
 
         $payment_data = [
@@ -174,16 +195,14 @@ class PaymentController extends Controller
             'payment_id' => $data['payment_data']['payment_id'],
             'redirect_url' => $data['redirect_url'],
         ];
+        // dd($data);
         return view('larapay::payment.response', compact('request', 'payment_data'));
     }
 
     public function webhookResponse($request)
     {
         $order_id = $request['order_id'];
-        $payment_id = $request['payment_id'];
         $payment_temp = PaymentTemp::whereOrderId($order_id)->first();
-        $request['razorpay_order_id'] = $order_id;
-        $request['razorpay_payment_id'] = $payment_id;
         $payment_count = Payment::whereOrderId($order_id)->count();
         $data = [
             'success' =>  true,

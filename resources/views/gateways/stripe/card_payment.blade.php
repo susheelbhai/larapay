@@ -36,7 +36,6 @@
                             id="payment-form">
                         @csrf
                         <input type="hidden" name="redirect_url"  value="{{ $input['redirect_url'] }}">
-                        <input type="hidden" name="gateway"  value="{{ $input['gateway'] }}">
                         <input type="hidden" name="currency"  value="inr">
                         <input type="hidden" name="amount"  value="{{ $input['amount'] }}">
                         <input type="hidden" name="description"  value="Payment from larapay">

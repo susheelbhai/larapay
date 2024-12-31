@@ -5,6 +5,8 @@
     <script src="http://localhost/espandan/public_html/storage/template/jquery-3.7.1.min.js"></script>
     <link rel="stylesheet"
         href="http://localhost/espandan/public_html/storage/template/bootstrap-5.3.0-alpha3-dist/css/bootstrap.css">
+        <title>Payment Confirmation | {{ config('app.name') }}</title>
+        <link rel="shortcut icon" href="{{ config('payment.favicon') }}" type="image/x-icon">
 </head>
 <style>
     body {

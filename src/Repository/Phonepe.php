@@ -2,18 +2,25 @@
 
 namespace Susheelbhai\Larapay\Repository;
 
+use Illuminate\Support\Facades\Http;
+
 class Phonepe
 {
 
     public $merchant_id;
     public $api_key;
+    public $salt_key;
     public $payment_env;
     public $language;
     public $currency;
+    public $salt_index; //key index 1
+
     public function __construct()
     {
         $this->merchant_id = config('larapay.phonepe.merchant_id');
         $this->api_key = config('larapay.phonepe.api_key');
+        $this->salt_key = config('larapay.phonepe.salt_key');
+        $this->salt_index = config('larapay.phonepe.salt_index');
         $this->payment_env = config('larapay.settings.payment_env');
         $this->language = config('larapay.settings.language');
         $this->currency = config('larapay.settings.currency');
@@ -21,10 +28,12 @@ class Phonepe
     public function paymentRequest($input)
     {
 
-        // return $input['order_id'];
-        $order_id =rand(11111111, 999999999);
+        $api_url = "https://api-preprod.phonepe.com/apis/pg-sandbox/pg/v1/pay";
+        if (config('larapay.settings.payment_env') == 'production') {
+            $api_url = "https://api-preprod.phonepe.com/apis/pg-sandbox/pg/v1/pay";
+        }
         $action_url = 'undefined';
-        $merchantTransactionId = "gd" . rand(2424, 444444444444);
+        $merchantTransactionId = "order_" . rand(1000000000, 9999999999).uniqid();
         $paymentData = array(
             'merchantId' => $this->merchant_id,
             "transactionId" => "TX123456789",
@@ -33,31 +42,30 @@ class Phonepe
             "storeId" => "store1",
             "terminalId" => "terminal1",
             'merchantTransactionId' => $merchantTransactionId,
-            "merchantUserId" => "CUSTOMER_UNIQUE_ID",
+            "merchantUserId" => $input['customer_id'],
             'amount' => $input['amount'] * 100, // Amount in paisa (100 INR)
-            'redirectUrl' => route('callback_url'),
-            'param1' => 'ggf',
-            'redirectMode' => "POST",
-            'callbackUrl' => $input['redirect_url'],
+            'redirectUrl' => route('callback_url')."?redirect_url=". $input['redirect_url']."&order_id=".$merchantTransactionId,
+            'param1' => $input['redirect_url'], //redirect user after complition of payment 
+            'redirectMode' => "REDIRECT",
+            'callbackUrl' => route('webhook',config('payment.gateway_id')),
             "merchantOrderId" => "YOUR_ORDER_ID",
-            "mobileNumber" => "7979851485",
+            "mobileNumber" => $input['phone'],
             "message" => "Order description",
-            "email" => "CUSTMER_EMAIL_ID",
-            "shortName" => "CUSTMER_Name",
+            "email" => $input['email'],
+            "shortName" => $input['name'],
             "paymentInstrument" => array(
                 "type" => "PAY_PAGE",
             )
         );
+        // dd($paymentData);
 
         $jsonencode = json_encode($paymentData);
         $payloadMain = base64_encode($jsonencode);
 
-        $salt_index = 1; //key index 1
         $payload = $payloadMain . "/pg/v1/pay" . $this->api_key;
         $sha256 = hash("sha256", $payload);
-        $final_x_header = $sha256 . '###' . $salt_index;
+        $final_x_header = $sha256 . '###' . $this->salt_index;
         $request = json_encode(array('request' => $payloadMain));
-        $api_url = "https://api-preprod.phonepe.com/apis/pg-sandbox/pg/v1/pay";
 
         $curl = curl_init();
         curl_setopt_array($curl, [
@@ -101,35 +109,49 @@ class Phonepe
         $response = array(
             'phonepe_data' => $res,
             'action_url' => $action_url,
-            'order_id' => $order_id,
+            'order_id' => $merchantTransactionId,
         );
+        // dd($response);
         return response(['data'=>$response], 200);
     }
 
     public function paymentResponce($request)
     {
-        // return $request;
 
-        $request->redirect_url = route('pay');
-        if ($request['code'] == 'PAYMENT_SUCCESS') {
+        $api_url = "https://api-preprod.phonepe.com/apis/pg-sandbox/pg/v1/status/$this->merchant_id/$request->order_id";
+        if (config('larapay.settings.payment_env') == 'production') {
+            $api_url = "https://api-preprod.phonepe.com/apis/pg-sandbox/pg/v1/status/$this->merchant_id/$request->order_id";
+        }
+        $sha256 = hash("sha256", "/pg/v1/status/$this->merchant_id/$request->order_id".$this->salt_key);
+        $final_x_header = $sha256 . '###' . $this->salt_index;
+        $response = Http::withHeaders([
+            'X-VERIFY' => $final_x_header,
+        ])->get("$api_url");
+        // dd($response['code']);
+        if ($response['code'] == 'PAYMENT_SUCCESS') {
             $data = [
                 'success' =>  true,
                 'redirect_url' => $request->redirect_url,
-                'msg' => 'payment successful',
+                'msg' => 'waiting',
                 'payment_data' => [
-                    'order_id' => $request['transactionId'],
-                    'payment_id' => '',
-                    'amount' => $request['amount'],
+                    'order_id' => $response['data']['merchantTransactionId'],
+                    'payment_id' => $response['data']['transactionId'],
+                    'amount' => $response['data']['amount'],
                 ]
             ];
         } else {
             $data = [
+                'success' =>  true,
                 'redirect_url' => $request->redirect_url,
-                'msg' => '',
-                'success' => false
+                'msg' => 'waiting',
+                'payment_data' => [
+                    'order_id' => $request['order_id'],
+                    'payment_id' => $request['providerReferenceId'],
+                    'amount' => $request['amount'],
+                ]
             ];
         }
-        // return $response; 
+        // dd($data);
         return $data;
     }
 }

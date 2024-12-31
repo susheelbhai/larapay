@@ -2,13 +2,25 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Facades\Auth;
 use Susheelbhai\Larapay\Models\Payment;
 use Susheelbhai\Larapay\Models\PaymentTemp;
 
 // This controller is developed to publish in main controller
 class LarapayController extends Controller
 {
-    public function updateTempTable( $request, $order_id, $gateway)
+    public function preOrderMethod( $request, $gateway)
+    {
+        $input = $request->all();
+        $request_from = request()->headers->get('referer');
+        $request['gst_percentage'] = 18;
+        $request['gst'] = 0.01 * $request['gst_percentage'];
+        $request['patient_id'] = Auth::guard('web')->user()->id;
+        $request['name'] = Auth::guard('web')->user()->name;
+        $request['phone'] = Auth::guard('web')->user()->phone;
+        $request['email'] = Auth::guard('web')->user()->email;
+    }
+    public function postOrderMethod( $request, $order_id, $gateway)
     {
         $input = $request->all();
         PaymentTemp::updateOrCreate(

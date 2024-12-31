@@ -2,6 +2,8 @@
 
 <head>
     <link href="https://fonts.googleapis.com/css?family=Nunito+Sans:400,400i,700,900&display=swap" rel="stylesheet">
+    <title>Payment Failed | {{ config('app.name') }}</title>
+        <link rel="shortcut icon" href="{{ config('payment.favicon') }}" type="image/x-icon">
 </head>
 <style>
     body {
