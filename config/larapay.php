@@ -40,6 +40,7 @@ return [
     'cashfree' => [
         'app_id' => env('CASHFREE_APP_ID', '625325'),
         'secret_key' => env('CASHFREE_SECRET_KEY', '625325'),
+        'api_version' => env('CASHFREE_API_VERSION', '2023-08-01'),
     ],
     
 ];

@@ -41,9 +41,9 @@ class InitialSettings extends Command
         'STRIPE_PUBLISHABLE_KEY' => '',
         'STRIPE_SECRET_KEY' => '',
         
-        'PHONEPE_MERCHANT_ID' => '',
-        'PHONEPE_API_KEY' => '',
-        'PHONEPE_SALT_KEY' => '',
+        'PHONEPE_MERCHANT_ID' => 'M110NES2UDXSUAT',
+        'PHONEPE_API_KEY' => '5afb2d8c-5572-47cf-a5a0-93bb79647ffa',
+        'PHONEPE_SALT_KEY' => '5afb2d8c-5572-47cf-a5a0-93bb79647ffa',
         'PHONEPE_SALT_INDEX' => '1',
         
         'CCAVANUE_MERCHANT_ID' => '',
@@ -52,6 +52,7 @@ class InitialSettings extends Command
 
         'CASHFREE_APP_ID' => '',
         'CASHFREE_SECRET_KEY' => '',
+        'CASHFREE_API_VERSION' => '2023-08-01',
     );
     
 

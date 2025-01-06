@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Http;
 class Phonepe
 {
 
+    public $api_base_url;
     public $merchant_id;
     public $api_key;
     public $salt_key;
@@ -17,6 +18,10 @@ class Phonepe
 
     public function __construct()
     {
+        $this->api_base_url = "https://api-preprod.phonepe.com/apis/pg-sandbox";
+        if (config('larapay.settings.payment_env') == 'production') {
+            $this->api_base_url = "https://api.phonepe.com/apis/hermes";
+        }
         $this->merchant_id = config('larapay.phonepe.merchant_id');
         $this->api_key = config('larapay.phonepe.api_key');
         $this->salt_key = config('larapay.phonepe.salt_key');
@@ -28,10 +33,7 @@ class Phonepe
     public function paymentRequest($input)
     {
 
-        $api_url = "https://api-preprod.phonepe.com/apis/pg-sandbox/pg/v1/pay";
-        if (config('larapay.settings.payment_env') == 'production') {
-            $api_url = "https://api-preprod.phonepe.com/apis/pg-sandbox/pg/v1/pay";
-        }
+        $api_url = $this->api_base_url."/pg/v1/pay";
         $action_url = 'undefined';
         $merchantTransactionId = "order_" . rand(1000000000, 9999999999).uniqid();
         $paymentData = array(
@@ -117,12 +119,10 @@ class Phonepe
 
     public function paymentResponce($request)
     {
+        $api_end_point = "/pg/v1/status/$this->merchant_id/$request->order_id";
+        $api_url = $this->api_base_url.$api_end_point;
 
-        $api_url = "https://api-preprod.phonepe.com/apis/pg-sandbox/pg/v1/status/$this->merchant_id/$request->order_id";
-        if (config('larapay.settings.payment_env') == 'production') {
-            $api_url = "https://api-preprod.phonepe.com/apis/pg-sandbox/pg/v1/status/$this->merchant_id/$request->order_id";
-        }
-        $sha256 = hash("sha256", "/pg/v1/status/$this->merchant_id/$request->order_id".$this->salt_key);
+        $sha256 = hash("sha256", $api_end_point.$this->salt_key);
         $final_x_header = $sha256 . '###' . $this->salt_index;
         $response = Http::withHeaders([
             'X-VERIFY' => $final_x_header,

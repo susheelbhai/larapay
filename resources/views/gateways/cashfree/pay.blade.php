@@ -8,8 +8,8 @@
 @section('content')
 <form id='paymentForm' action="{{ route('callback_url') }}" method="POST">
     @csrf
-    <input type="hidden" name="payment_session_id" value="{{ $orderData['payment_session_id'] }}">
-    <input type="hidden" name="order_id" value="{{ $orderData['order_id'] }}">
+    <input type="hidden" name="payment_session_id" value="{{ $orderData['cashfree_data']->payment_session_id }}">
+    <input type="hidden" name="order_id" value="{{ $orderData['cashfree_data']->order_id }}">
     @foreach ($input as $index => $i)
         <input type="hidden" name="{{ $index }}" value="{{ $i }}">
     @endforeach
@@ -29,7 +29,7 @@
 
     function myFunction(e) {
         let checkoutOptions = {
-            paymentSessionId: "{{ $orderData['payment_session_id'] }}",
+            paymentSessionId: "{{ $orderData['cashfree_data']->payment_session_id }}",
             redirectTarget: "_modal",
         };
         cashfree.checkout(checkoutOptions).then((result) => {

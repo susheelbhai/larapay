@@ -42,6 +42,7 @@ class PaymentController extends Controller
         $gateway = $request['gateway'] ?? $this->gateway;
         $obj->preOrderMethod($request, $gateway);
         $input = $request->all();
+        $input['gateway'] = $gateway;
         switch ($gateway) {
             case 1:
                 $order = new COD();
