@@ -2,9 +2,9 @@
 
 <head>
     <link href="https://fonts.googleapis.com/css?family=Nunito+Sans:400,400i,700,900&display=swap" rel="stylesheet">
-    <script src="{{asset('template/jquery-3.7.1.min.js')}}"></script>
+    <script src="{{asset('js/jquery-3.7.1.min.js')}}"></script>
     <link rel="stylesheet"
-        href="{{asset('template/bootstrap-5.3.0-alpha3-dist/css/bootstrap.css')}}">
+        href="{{asset('css/bootstrap.min.css')}}">
         <title>Payment Confirmation | {{ config('app.name') }}</title>
         <link rel="shortcut icon" href="{{ config('payment.favicon') }}" type="image/x-icon">
 </head>
