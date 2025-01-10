@@ -129,6 +129,9 @@ class PaymentController extends Controller
                 if ($request['type'] == 'PAYMENT_SUCCESS_WEBHOOK') {
                     $event_type = 'payment.captured';
                 }
+                if ($request['type'] == 'PAYMENT_FAILED_WEBHOOK') {
+                    $event_type = 'payment.failed';
+                }
                 $data = [
                     'order_id' => $request['data']['order']['order_id'],
                     'payment_id' => $request['data']['payment']['cf_payment_id'],
