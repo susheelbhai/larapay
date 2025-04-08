@@ -4,12 +4,13 @@ namespace Susheelbhai\Larapay\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Mail;
 use Susheelbhai\Larapay\Models\Payment;
 use Susheelbhai\Larapay\Repository\COD;
+use Susheelbhai\Larapay\Repository\PayU;
+use Susheelbhai\Larapay\Mail\WebhookEmail;
 use Susheelbhai\Larapay\Repository\Stripe;
 use App\Http\Controllers\LarapayController;
-use Illuminate\Support\Facades\Mail;
-use Susheelbhai\Larapay\Mail\WebhookEmail;
 use Susheelbhai\Larapay\Models\PaymentTemp;
 use Susheelbhai\Larapay\Repository\Phonepe;
 use Susheelbhai\Larapay\Repository\Cashfree;
@@ -71,6 +72,10 @@ class PaymentController extends Controller
             case 7:
                 $order = new Cashfree();
                 $view = 'larapay::gateways.cashfree.pay';
+                break;
+            case 8:
+                $order = new PayU();
+                $view = 'larapay::gateways.payu.pay';
                 break;
 
             default:
@@ -178,6 +183,9 @@ class PaymentController extends Controller
             case 7:
                 $response = new Cashfree();
                 break;
+            case 8:
+                $response = new PayU();
+                break;
 
             default:
                 # code...
@@ -276,6 +284,9 @@ class PaymentController extends Controller
                 break;
             case 7:
                 $repo = new Cashfree();
+                break;
+            case 8:
+                $repo = new PayU();
                 break;
 
             default:

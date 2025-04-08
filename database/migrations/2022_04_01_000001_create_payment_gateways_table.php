@@ -28,6 +28,7 @@ return new class extends Migration
             array('id' => '5', 'name' => 'CCAvanue', 'is_active' => '1', 'is_default'=>0),
             array('id' => '6', 'name' => 'Phonepe', 'is_active' => '1', 'is_default'=>0),
             array('id' => '7', 'name' => 'Cashfree', 'is_active' => '1', 'is_default'=>0),
+            array('id' => '8', 'name' => 'PayU', 'is_active' => '1', 'is_default'=>0),
           );
         PaymentGateway::insert($payment_gateways);
     }

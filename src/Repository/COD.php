@@ -4,14 +4,15 @@ namespace Susheelbhai\Larapay\Repository;
 
 use Susheelbhai\Larapay\Models\Payment;
 
-class COD{
+class COD
+{
 
     public function paymentRequest($data)
     {
         $data = [
-            'order_id' => rand(1111,9999)
+            'order_id' => rand(1111, 9999)
         ];
-        return response(['data'=>$data], 200);
+        return response(['data' => $data], 200);
     }
 
     public function paymentResponce($request)
@@ -20,10 +21,10 @@ class COD{
 
         $error = "Payment Failed";
 
-        
+
 
         if ($success === true) {
-            
+
             $data = [
                 'success' =>  true,
                 'redirect_url' => $request->redirect_url,
