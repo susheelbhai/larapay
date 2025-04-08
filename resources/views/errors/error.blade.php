@@ -57,7 +57,7 @@
                 <div class="message-box _success _failed">
                     <i class="fa fa-times-circle" aria-hidden="true"></i>
                     <h2> Something went wrong </h2>
-                    {{-- <p> Error : {{ $response->status()}} </p> --}}
+                    <p> Error : {{ $response->status()}} </p>
 
                 </div>
             </div>

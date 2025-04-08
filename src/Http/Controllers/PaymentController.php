@@ -252,4 +252,36 @@ class PaymentController extends Controller
     {
         return view('larapay::payment.failed')->with('data', $request);
     }
+    public function refundPayment($id, $amount, $speed="normal")
+    {
+        $data = Payment::whereId($id)->first();
+        switch ($data['payment_gateway_id']) {
+            case 1:
+                $repo = new COD();
+                break;
+            case 2:
+                $repo = new Razorpay();
+                break;
+            case 3:
+                $repo = new Pinelabs();
+                break;
+            case 4:
+                $repo = new Stripe();
+                break;
+            case 5:
+                $repo = new CCAvanue();
+                break;
+            case 6:
+                $repo = new Phonepe();
+                break;
+            case 7:
+                $repo = new Cashfree();
+                break;
+
+            default:
+                # code...
+                break;
+        }
+        return $repo->makeRefund($data, $amount, $speed);
+    }
 }

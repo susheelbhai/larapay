@@ -53,6 +53,11 @@ class InitialSettings extends Command
         'CASHFREE_APP_ID' => '',
         'CASHFREE_SECRET_KEY' => '',
         'CASHFREE_API_VERSION' => '2023-08-01',
+        
+        'PAYU_MERCHANT_ID' => 'JGHFfgh',
+        'PAYU_MERCHANT_SALT' => 'JGHFfgh',
+        'PAYU_CLIENT_ID' => 'JGHFfgh',
+        'PAYU_CLIENT_SECRET' => 'JGHFfgh',
     );
     
 

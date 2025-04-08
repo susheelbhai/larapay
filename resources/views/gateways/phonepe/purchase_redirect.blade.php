@@ -7,6 +7,7 @@
 <body>
 
     <form method="post" name="redirect" action="{{ $orderData['action_url'] }}">
+        @csrf
         {{-- <input type="hidden" name="encRequest" value="{{ $orderData['encrypted_data'] }}"> --}}
         <input type="hidden" name="param1" value="tgwtrw">
 
