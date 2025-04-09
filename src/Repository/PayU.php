@@ -132,14 +132,14 @@ class PayU
         $available_amount = $fetched_payment['amount'] - $amount_refunded;
         $amount = $amount == 'full' ? $available_amount : $amount;
         if ($available_amount == 0) {
-            return $responce = [
+            return $response = [
                 'refund_id' => null,
                 'status' => 'already_refunded',
                 'message' => 'Payment is already refunded',
             ];
         }
         if ($amount > $available_amount) {
-            return $responce = [
+            return $response = [
                 'refund_id' => null,
                 'status' => 'insufficient_balance',
             ];
@@ -148,29 +148,30 @@ class PayU
 
             $merchantTransactionId = "refund_" . rand(1000000000, 9999999999) . uniqid();
 
-            $response = $this->baseApiCall("cancel_refund_transaction", $payment['payment_id'], "&var2=$merchantTransactionId&var3=$amount&var5=" . route('home'));;
-            if (isset($response->status) && $response['status'] == 1) {
-                $responce = [
-                    'refund_id' => $response->request_id,
-                    'status' => $response->status == 1 ? 'processed' : 'unknown',
+            $response = $this->baseApiCall("cancel_refund_transaction", $payment['payment_id'], "&var2=$merchantTransactionId&var3=$amount&var5=" . route('home'));
+
+            if ( $response['status'] == 1) {
+                $response = [
+                    'refund_id' => $response['request_id'],
+                    'status' => $response['status'] == 1 ? 'processed' : 'unknown',
                     'speed_processed' => 'normal',
                     'speed_requested' => 'normal',
                     'amount_refunded' => $amount,
                 ];
             } else {
-                $responce = [
+                $response = [
                     'refund_id' => null,
-                    'status' => $response->code,
-                    'message' => $response->message,
+                    'status' => 'undefined',
+                    'message' => $response['msg'],
                 ];
             }
         } catch (\Throwable $th) {
-            $responce = [
+            $response = [
                 'refund_id' => null,
                 'status' => 'already_refunded',
                 'message' => $th->getMessage(),
             ];
         }
-        return $responce;
+        return $response;
     }
 }

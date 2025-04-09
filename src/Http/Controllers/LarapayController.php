@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Support\Facades\Auth;
 use Susheelbhai\Larapay\Models\Payment;
 use Susheelbhai\Larapay\Models\PaymentTemp;
+use Susheelbhai\Larapay\Models\PaymentRefund;
 
 // This controller is developed to publish in main controller
 class LarapayController extends Controller
@@ -53,6 +54,21 @@ class LarapayController extends Controller
                 'payment_status' => 0,
             ]
         );
+        return true;
+    }
+
+    public function paymentRefunded( $payment_data, $response)
+    {
+        if ($response['status'] == "processed") {
+            PaymentRefund::updateOrCreate(
+                [
+                    'payment_id' => $payment_data['id'],
+                    'refund_id' => $response['refund_id'],
+                    'amount' => $response['amount_refunded'],
+                ]
+            );
+        }
+
         return true;
     }
 }

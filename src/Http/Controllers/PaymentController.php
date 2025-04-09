@@ -39,11 +39,12 @@ class PaymentController extends Controller
     public function index(Request $request)
     {
 
-        $obj = new LarapayController();
         $gateway = $request['gateway'] ?? $this->gateway;
-        $obj->preOrderMethod($request, $gateway);
         $input = $request->all();
         $input['gateway'] = $gateway;
+
+        $obj = new LarapayController();
+        $obj->preOrderMethod($request, $gateway);
         switch ($gateway) {
             case 1:
                 $order = new COD();
@@ -262,8 +263,8 @@ class PaymentController extends Controller
     }
     public function refundPayment($id, $amount, $speed="normal")
     {
-        $data = Payment::whereId($id)->first();
-        switch ($data['payment_gateway_id']) {
+        $payment_data = Payment::whereId($id)->first();
+        switch ($payment_data['payment_gateway_id']) {
             case 1:
                 $repo = new COD();
                 break;
@@ -293,6 +294,9 @@ class PaymentController extends Controller
                 # code...
                 break;
         }
-        return $repo->makeRefund($data, $amount, $speed);
+        $response = $repo->makeRefund($payment_data, $amount, $speed);
+        $obj = new LarapayController();
+        $obj->paymentRefunded($payment_data, $response);
+        return $response;
     }
 }
