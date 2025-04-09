@@ -39,12 +39,14 @@ class PaymentController extends Controller
     public function index(Request $request)
     {
 
+        $obj = new LarapayController();
         $gateway = $request['gateway'] ?? $this->gateway;
+        $obj->preOrderMethod($request, $gateway);
         $input = $request->all();
         $input['gateway'] = $gateway;
+        // please dont change the order of above line of codes because some data in updated in other class
 
-        $obj = new LarapayController();
-        $obj->preOrderMethod($request, $gateway);
+        
         switch ($gateway) {
             case 1:
                 $order = new COD();
@@ -83,7 +85,6 @@ class PaymentController extends Controller
                 return view('larapay::errors.error');
                 break;
         }
-
 
         $response = $order->paymentRequest($input);
         if ($response->status() != 200) {
