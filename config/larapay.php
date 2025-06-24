@@ -5,6 +5,7 @@ return [
     'settings' => [
         'language' => 'EN',
         'currency' => 'INR',
+        'payment_template' => env('PAYMENT_TEMPLATE', 'blade'),
         'payment_env' => env('PAYMENT_ENV', 'local'),
         'redirection_waiting_time' => env('PAYMENT_REDIRECTION_WAITIONG_TIME', 7),
         'unable_payment_response' => env('UNABLE_PAYMENT_RESPONSE', 0),

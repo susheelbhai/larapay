@@ -11,6 +11,7 @@ use Susheelbhai\Larapay\Repository\PayU;
 use Susheelbhai\Larapay\Mail\WebhookEmail;
 use Susheelbhai\Larapay\Repository\Stripe;
 use App\Http\Controllers\LarapayController;
+use Inertia\Inertia;
 use Susheelbhai\Larapay\Models\PaymentTemp;
 use Susheelbhai\Larapay\Repository\Phonepe;
 use Susheelbhai\Larapay\Repository\Cashfree;
@@ -22,9 +23,11 @@ use Susheelbhai\Larapay\Models\PaymentGateway;
 class PaymentController extends Controller
 {
     public $gateway;
+    public $template;
     public function __construct()
     {
         $this->gateway = config('payment.gateway_id');
+        $this->template = config('larapay.settings.payment_template');
     }
 
     public function form()
@@ -33,7 +36,12 @@ class PaymentController extends Controller
             abort(404);
         }
         $gateways = PaymentGateway::whereIsActive(1)->get();
-        return view('larapay::payment.form', compact('gateways'));
+        // return view('larapay::payment.form', compact('gateways'));
+        return Inertia::render('success', [
+            'data' => [],
+            'source' => 'larapay', // custom flag
+            'dom' => 'larapay'
+        ]);
     }
 
     public function index(Request $request)
@@ -46,39 +54,49 @@ class PaymentController extends Controller
         $input['gateway'] = $gateway;
         // please dont change the order of above line of codes because some data in updated in other class
 
-        
+        $props = [
+            'csrfToken' => csrf_token(),
+            'callbackUrl' => route('callback_url'),
+            'logoUrl' => config('app.logo_light'),
+            'source' => 'larapay',
+        ];
+
         switch ($gateway) {
             case 1:
                 $order = new COD();
-                $view = 'larapay::gateways.cod.confirmation';
+                $view = 'gateways.cod.confirmation';
                 break;
             case 2:
                 $order = new Razorpay();
-                $view = 'larapay::gateways.razorpay.pay';
+                $view = 'gateways.razorpay.pay';
+                $props['razorpayKey'] = config('larapay.razorpay.razorpay_key_id');
                 break;
             case 3:
                 $order = new Pinelabs();
-                $view = 'larapay::gateways.pinelabs.purchase_redirect';
+                $view = 'gateways.pinelabs.purchase_redirect';
                 break;
             case 4:
                 $order = new Stripe();
-                $view = 'larapay::gateways.stripe.card_payment';
+                $view = 'gateways.stripe.card_payment';
+                $props['stripeKey'] = config('larapay.stripe.stripe_publishable_key');
                 break;
             case 5:
                 $order = new CCAvanue();
-                $view = 'larapay::gateways.ccavanue.purchase_redirect';
+                $view = 'gateways.ccavanue.purchase_redirect';
                 break;
             case 6:
                 $order = new Phonepe();
-                $view = 'larapay::gateways.phonepe.purchase_redirect';
+                $view = 'gateways.phonepe.purchase_redirect';
+                 $props['phonepeKey'] = config('larapay.phonepe.key');
                 break;
             case 7:
                 $order = new Cashfree();
-                $view = 'larapay::gateways.cashfree.pay';
+                $view = 'gateways.cashfree.pay';
+                $props['paymentEnv'] = config('larapay.settings.payment_env') === 'production' ? 'production' : 'sandbox';
                 break;
             case 8:
                 $order = new PayU();
-                $view = 'larapay::gateways.payu.pay';
+                $view = 'gateways.payu.pay';
                 break;
 
             default:
@@ -93,7 +111,16 @@ class PaymentController extends Controller
         $orderData = $response->getOriginalContent()['data'];
         $obj->postOrderMethod($request, $orderData['order_id'], $gateway);
         $input = $request->all();
-        return view($view, compact('orderData', 'input'));
+        if ($this->template == 'blade') {
+            return view("larapay::$view", compact('orderData', 'input'));
+        }
+        if ($this->template == 'react') {
+            return Inertia::render(str_replace(".", '/', $view), [
+                'input' => $input,
+                'orderData' => $orderData,
+                'props' => $props,
+            ]);
+        }
     }
 
     function manualWebhook(Request $request)
@@ -262,7 +289,7 @@ class PaymentController extends Controller
     {
         return view('larapay::payment.failed')->with('data', $request);
     }
-    public function refundPayment($id, $amount, $speed="normal")
+    public function refundPayment($id, $amount, $speed = "normal")
     {
         $payment_data = Payment::whereId($id)->first();
         switch ($payment_data['payment_gateway_id']) {

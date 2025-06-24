@@ -25,6 +25,7 @@ class InitialSettings extends Command
      */
 
     public $env_values = array(
+         'PAYMENT_TEMPLATE' => 'blade',
          'PAYMENT_ENV' => 'local',
          'PAYMENT_GATEWAY_ID' => '2',
          'PAYMENT_REDIRECTION_WAITIONG_TIME' => '7',
