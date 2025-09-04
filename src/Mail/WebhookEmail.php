@@ -25,6 +25,8 @@ class WebhookEmail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
+            from: 'test@example.com',
+            to: 'recipient@example.com',
             subject: 'Webhook Called Successfully',
         );
     }

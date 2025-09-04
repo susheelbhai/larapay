@@ -19,6 +19,7 @@ return new class extends Migration
             $table->softDeletes();
             $table->foreignId('payment_gateway_id')->nullable()->references('id')->on('payment_gateways');
             $table->foreignId('invoice_id')->nullable()->references('id')->on('invoices');
+            $table->foreignId('user_id')->nullable()->references('id')->on('users');
             $table->string('email')->nullable();
             $table->string('phone')->nullable();
             $table->string('amount')->nullable();
@@ -34,6 +35,7 @@ return new class extends Migration
             $table->string('billing_city')->nullable();
             $table->string('billing_pin')->nullable();
             $table->string('billing_state_id')->nullable()->references('id')->on('states');
+            $table->json('data')->nullable();
             $table->boolean('payment_status');
         });
     }

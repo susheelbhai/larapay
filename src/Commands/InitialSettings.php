@@ -42,6 +42,10 @@ class InitialSettings extends Command
         'STRIPE_PUBLISHABLE_KEY' => '',
         'STRIPE_SECRET_KEY' => '',
         
+        'PHONEPE_VERSION' => 'M110NES2UDXSUAT',
+        'PHONEPE_CLIENT_VERSION' => '1',
+        'PHONEPE_CLIENT_ID' => 'sdfsdfasafs',
+        'PHONEPE_CLIENT_SECRET' => 'asfdasdfasfd',
         'PHONEPE_MERCHANT_ID' => 'M110NES2UDXSUAT',
         'PHONEPE_API_KEY' => '5afb2d8c-5572-47cf-a5a0-93bb79647ffa',
         'PHONEPE_SALT_KEY' => '5afb2d8c-5572-47cf-a5a0-93bb79647ffa',

@@ -19,6 +19,8 @@ use Susheelbhai\Larapay\Repository\CCAvanue;
 use Susheelbhai\Larapay\Repository\Pinelabs;
 use Susheelbhai\Larapay\Repository\Razorpay;
 use Susheelbhai\Larapay\Models\PaymentGateway;
+use Susheelbhai\Larapay\Repository\PhonepeV1;
+use Susheelbhai\Larapay\Repository\PhonepeV2;
 
 class PaymentController extends Controller
 {
@@ -46,7 +48,7 @@ class PaymentController extends Controller
 
     public function index(Request $request)
     {
-
+        
         $obj = new LarapayController();
         $gateway = $request['gateway'] ?? $this->gateway;
         $obj->preOrderMethod($request, $gateway);
@@ -85,7 +87,7 @@ class PaymentController extends Controller
                 $view = 'gateways.ccavanue.purchase_redirect';
                 break;
             case 6:
-                $order = new Phonepe();
+                $order = config('larapay.phonepe.phonepe_version') == 'v1' ? new PhonepeV1() : new PhonepeV2();
                 $view = 'gateways.phonepe.purchase_redirect';
                  $props['phonepeKey'] = config('larapay.phonepe.key');
                 break;
@@ -97,6 +99,8 @@ class PaymentController extends Controller
             case 8:
                 $order = new PayU();
                 $view = 'gateways.payu.pay';
+                $props['paymentEnv'] = config('larapay.settings.payment_env') === 'production' ? 'production' : 'sandbox';
+                $props['merchant_id'] = config('larapay.payu.merchant_id');
                 break;
 
             default:
@@ -105,12 +109,14 @@ class PaymentController extends Controller
         }
 
         $response = $order->paymentRequest($input);
+        // dd($response);
         if ($response->status() != 200) {
             return view('larapay::errors.error', compact('response'));
         }
         $orderData = $response->getOriginalContent()['data'];
         $obj->postOrderMethod($request, $orderData['order_id'], $gateway);
         $input = $request->all();
+        
         if ($this->template == 'blade') {
             return view("larapay::$view", compact('orderData', 'input'));
         }
@@ -135,7 +141,7 @@ class PaymentController extends Controller
     function webhook(Request $request, $gateway)
     {
         // to test whether webhook called or nor or to see the response of webhook, you can send an test email with the response data by uncommenting the below code
-        // Mail::send("test@wxample.com")->send(new WebhookEmail($request));
+        // Mail::send(new WebhookEmail($request));
 
 
         switch ($gateway) {
@@ -148,7 +154,7 @@ class PaymentController extends Controller
                 break;
             case 6:
                 $request = json_decode(base64_decode($request['response']));
-                if ($request->code == 'PAYMENT_SUCCESS') {
+                if ($request->code && $request->code == 'PAYMENT_SUCCESS') {
                     $event_type = 'payment.captured';
                 }
 
@@ -188,7 +194,7 @@ class PaymentController extends Controller
     public function paymentResponce(Request $request)
     {
 
-        $payment_temp = PaymentTemp::whereOrderId($request['order_id'])->first();
+        $payment_temp = PaymentTemp::whereOrderId($request['order_id'])->firstOrFail();
         // return $payment_temp;
         switch ($payment_temp['payment_gateway_id']) {
             case 1:
@@ -207,7 +213,7 @@ class PaymentController extends Controller
                 $response = new CCAvanue();
                 break;
             case 6:
-                $response = new Phonepe();
+                $response = config('larapay.phonepe.phonepe_version') == 'v1' ? new PhonepeV1() : new PhonepeV2();
                 break;
             case 7:
                 $response = new Cashfree();
@@ -221,6 +227,7 @@ class PaymentController extends Controller
                 break;
         }
         $data = $response->paymentResponce($request);
+        
         if (config('larapay.settings.unable_payment_response') == 1) {
             $payment = new LarapayController();
             if ($data['success'] == true) {
@@ -228,15 +235,16 @@ class PaymentController extends Controller
             } else {
                 $payment->paymentFailed($request->all(), $data, $payment_temp);
             }
+            // dd($data);
         }
 
 
         $payment_data = [
-            'order_id' => $data['payment_data']['order_id'],
-            'payment_id' => $data['payment_data']['payment_id'],
+            'order_id' => $data['payment_data']['order_id'] ?? $request['order_id'],
+            'payment_id' => $data['payment_data']['payment_id'] ?? $request['payment_id'],
             'redirect_url' => $data['redirect_url'],
         ];
-        // dd($data);
+        // dd($payment_data);
         return view('larapay::payment.response', compact('request', 'payment_data'));
     }
 
@@ -309,7 +317,7 @@ class PaymentController extends Controller
                 $repo = new CCAvanue();
                 break;
             case 6:
-                $repo = new Phonepe();
+                $repo = config('larapay.phonepe.phonepe_version') == 'v1' ? new PhonepeV1() : new PhonepeV2();
                 break;
             case 7:
                 $repo = new Cashfree();

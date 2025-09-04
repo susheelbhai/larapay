@@ -18,6 +18,7 @@ return new class extends Migration
             $table->timestamps();
             $table->foreignId('payment_gateway_id')->nullable()->references('id')->on('payment_gateways');
             $table->string('payment_status')->nullable();
+            $table->foreignId('user_id')->nullable()->references('id')->on('users');
             $table->string('email')->nullable();
             $table->string('phone')->nullable();
             $table->string('amount')->nullable();

@@ -10,6 +10,7 @@ Route::middleware('web')->group(function () {
         Route::post('callback_url', [PaymentController::class, 'paymentResponce'])->name('callback_url');
         Route::get('callback_url', [PaymentController::class, 'paymentResponce'])->name('callback_url');
         Route::post('webhook/{gateway}', [PaymentController::class, 'webhook'])->name('webhook');
+        // Route::get('webhook/{gateway}', [PaymentController::class, 'webhook'])->name('webhook');
         Route::post('manualWebhook', [PaymentController::class, 'manualWebhook'])->name('manualWebhook');
         Route::post('checkPayment', [PaymentController::class, 'checkPayment'])->name('checkPayment');
         Route::post('paymentSuccess', [PaymentController::class, 'paymentSuccess'])->name('paymentSuccess');

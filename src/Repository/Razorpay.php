@@ -31,10 +31,11 @@ class Razorpay
                 'amount'          =>  $data['amount'] * 100, // amount rupees in paise
                 'currency'        => $this->currency
             ];
-
+            // dd($orderData);
             $razorpayOrder = $api->order->create($orderData);
             $razorpayOrder['order_id'] = $razorpayOrder['id'];
-            return response(['data' => $razorpayOrder], 200);
+            $razorpayOrder['redirect_url'] = route('callback_url') . "?redirect_url=" . $data['redirect_url'] . "&order_id=" . $razorpayOrder['id'];
+            return response(['data' => $razorpayOrder->toArray()], 200);
         } catch (\Exception $th) {
             $code = $th->getCode() == 0 ? 500 : $th->getHttpStatusCode();
             return response($th, $code);

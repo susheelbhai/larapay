@@ -16,7 +16,7 @@ class LarapayController extends Controller
         $request_from = request()->headers->get('referer');
         $request['gst_percentage'] = 18;
         $request['gst'] = 0.01 * $request['gst_percentage'];
-        $request['patient_id'] = Auth::guard('web')->user()->id;
+        $request['customer_id'] = Auth::guard('web')->user()->id;
         $request['name'] = Auth::guard('web')->user()->name;
         $request['phone'] = Auth::guard('web')->user()->phone;
         $request['email'] = Auth::guard('web')->user()->email;
@@ -24,12 +24,18 @@ class LarapayController extends Controller
     public function postOrderMethod( $request, $order_id, $gateway)
     {
         $input = $request->all();
+        $temp_data = [
+            'payment_gateway_id' => $gateway,
+            'amount' => $input['amount'],
+            'email' => $input['email'],
+            'phone' => $input['phone'],
+            'payment_product_type_id' => $input['payment_product_type_id'],
+            'user_id' => Auth::guard('web')->user()->id,
+        ];
+        $input = $request->all();
         PaymentTemp::updateOrCreate(
             ['order_id' => $order_id],
-            [
-                'payment_gateway_id' => $gateway,
-                'amount' => $input['amount'],
-            ]
+            $temp_data
         );
     }
     public function paymentSuccessful($request, $data, $payment_temp)

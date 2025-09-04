@@ -57,6 +57,7 @@ class PayU
             ];
         } else {
             $data = [
+                'success' =>  false,
                 'redirect_url' => $request->redirect_url,
                 'msg' => 'something went wrong'
             ];

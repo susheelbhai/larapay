@@ -33,6 +33,10 @@ return [
         'working_key' => env('CCAVANUE_WORKING_KEY', 'jhsdfg'),
     ],
     'phonepe' => [
+        'phonepe_version' => env('PHONEPE_VERSION', 'v2'),
+        'client_id' => env('PHONEPE_CLIENT_ID', 'TEST-asdf'),
+        'client_secret' => env('PHONEPE_CLIENT_SECRET', 'hkfashkh'),
+        'client_version' => env('PHONEPE_CLIENT_VERSION', 1),
         'merchant_id' => env('PHONEPE_MERCHANT_ID', '625325'),
         'api_key' => env('PHONEPE_API_KEY', '625325'),
         'salt_key' => env('PHONEPE_SALT_KEY', '625325'),
