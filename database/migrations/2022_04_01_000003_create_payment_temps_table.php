@@ -16,6 +16,7 @@ return new class extends Migration
         Schema::create('payment_temps', function (Blueprint $table) {
             $table->id();
             $table->timestamps();
+            $table->morphs('payable');
             $table->foreignId('payment_gateway_id')->nullable()->references('id')->on('payment_gateways');
             $table->string('payment_status')->nullable();
             $table->foreignId('user_id')->nullable()->references('id')->on('users');
@@ -34,6 +35,7 @@ return new class extends Migration
             $table->string('billing_city')->nullable();
             $table->string('billing_pin')->nullable();
             $table->string('billing_state_id')->nullable()->references('id')->on('states');
+            $table->json('data')->nullable();
         });
     }
 

@@ -17,6 +17,7 @@ return new class extends Migration
             $table->id();
             $table->timestamps();
             $table->softDeletes();
+            $table->morphs('payable');
             $table->foreignId('payment_gateway_id')->nullable()->references('id')->on('payment_gateways');
             $table->foreignId('invoice_id')->nullable()->references('id')->on('invoices');
             $table->foreignId('user_id')->nullable()->references('id')->on('users');
