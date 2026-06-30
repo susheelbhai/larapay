@@ -12,14 +12,19 @@ class LarapayController extends Controller
 {
     public function preOrderMethod( $request, $gateway)
     {
-        $input = $request->all();
         $request_from = request()->headers->get('referer');
+        
+        $user = Auth::guard('web')->user();
+        if (!$user) {
+            abort(401, 'User must be authenticated to make a payment.');
+        }
+        
         $request['gst_percentage'] = 18;
         $request['gst'] = 0.01 * $request['gst_percentage'];
-        $request['customer_id'] = Auth::guard('web')->user()->id;
-        $request['name'] = Auth::guard('web')->user()->name;
-        $request['phone'] = Auth::guard('web')->user()->phone;
-        $request['email'] = Auth::guard('web')->user()->email;
+        $request['customer_id'] = $user->id;
+        $request['name'] = $user->name;
+        $request['phone'] = $user->phone;
+        $request['email'] = $user->email;
     }
     public function postOrderMethod( $request, $order_id, $gateway)
     {
@@ -29,10 +34,9 @@ class LarapayController extends Controller
             'amount' => $input['amount'],
             'email' => $input['email'],
             'phone' => $input['phone'],
-            'payment_product_type_id' => $input['payment_product_type_id'],
+            'payment_product_type_id' => $input['payment_product_type_id'] ?? null,
             'user_id' => Auth::guard('web')->user()->id,
         ];
-        $input = $request->all();
         PaymentTemp::updateOrCreate(
             ['order_id' => $order_id],
             $temp_data
@@ -52,10 +56,10 @@ class LarapayController extends Controller
         );
         return true;
     }
-    public function paymentFailed($request)
+    public function paymentFailed($request, $data, $payment_temp)
     {
         PaymentTemp::updateOrCreate(
-            ['order_id' => $request['order_id']],
+            ['order_id' => $data['payment_data']['order_id'] ?? $request['order_id']],
             [
                 'payment_status' => 0,
             ]

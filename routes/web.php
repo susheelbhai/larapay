@@ -2,15 +2,16 @@
 
 use Illuminate\Support\Facades\Route;
 use Susheelbhai\Larapay\Http\Controllers\PaymentController;
+use Susheelbhai\Larapay\Http\Controllers\PayoutController;
 
+// Webhook routes — outside web middleware to avoid CSRF blocking from payment gateways
+Route::post('webhook/{gateway}', [PaymentController::class, 'webhook'])->name('webhook');
+Route::match(['get', 'post'], 'callback_url', [PaymentController::class, 'paymentResponce'])->name('callback_url');
+Route::post('payout/webhook/{gateway}', [PayoutController::class, 'payoutWebhook'])->name('payout.webhook');
 
 Route::middleware('web')->group(function () {
         Route::get('pay', [PaymentController::class, 'form'])->name('pay');
         Route::post('pay', [PaymentController::class, 'index']);
-        Route::post('callback_url', [PaymentController::class, 'paymentResponce'])->name('callback_url');
-        Route::get('callback_url', [PaymentController::class, 'paymentResponce'])->name('callback_url');
-        Route::post('webhook/{gateway}', [PaymentController::class, 'webhook'])->name('webhook');
-        // Route::get('webhook/{gateway}', [PaymentController::class, 'webhook'])->name('webhook');
         Route::post('manualWebhook', [PaymentController::class, 'manualWebhook'])->name('manualWebhook');
         Route::post('checkPayment', [PaymentController::class, 'checkPayment'])->name('checkPayment');
         Route::post('paymentSuccess', [PaymentController::class, 'paymentSuccess'])->name('paymentSuccess');

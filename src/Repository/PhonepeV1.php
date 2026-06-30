@@ -136,8 +136,14 @@ class PhonepeV1
             ];
         } else {
             $data = [
+                'success' => false,
                 'redirect_url' => $request->redirect_url,
-                'msg' => 'something went wrong'
+                'msg' => 'something went wrong',
+                'payment_data' => [
+                    'order_id' => $request['order_id'] ?? $response['order_id'] ?? null,
+                    'payment_id' => $response['payment_id'] ?? null,
+                    'amount' => $response['amount'] ?? 0,
+                ]
             ];
         }
         return $data;

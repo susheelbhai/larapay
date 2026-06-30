@@ -7,8 +7,8 @@ class PayU
 {
     public $merchant_id;
     public $merchant_salt;
-    public $cliect_id;
-    public $cliect_secret;
+    public $client_id;
+    public $client_secret;
     public $api_base_url;
     public $payment_env;
     public $language;
@@ -17,8 +17,8 @@ class PayU
     {
         $this->merchant_id = config('larapay.payu.merchant_id');
         $this->merchant_salt = config('larapay.payu.merchant_salt');
-        $this->cliect_id = config('larapay.payu.cliect_id');
-        $this->cliect_secret = config('larapay.payu.cliect_secret');
+        $this->client_id = config('larapay.payu.client_id');
+        $this->client_secret = config('larapay.payu.client_secret');
         $this->api_base_url = "https://test.payu.in";
 
         if (config('larapay.settings.payment_env') == 'production') {
@@ -59,7 +59,12 @@ class PayU
             $data = [
                 'success' =>  false,
                 'redirect_url' => $request->redirect_url,
-                'msg' => 'something went wrong'
+                'msg' => 'something went wrong',
+                'payment_data' => [
+                    'order_id' => $request['order_id'] ?? null,
+                    'payment_id' => null,
+                    'amount' => 0,
+                ]
             ];
         }
         return $data;

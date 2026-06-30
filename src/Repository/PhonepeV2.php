@@ -72,9 +72,7 @@ class PhonepeV2
         $token = $this->getValidToken();
 
         if (!$token) {
-            http_response_code(500);
-            echo json_encode(['error' => 'OAuth token not available. Please try again later.']);
-            exit;
+            return response(['data' => ['error' => 'OAuth token not available. Please try again later.', 'order_id' => $merchantTransactionId]], 500);
         }
         // dd($input);
         $requestData = [
@@ -114,9 +112,7 @@ class PhonepeV2
         if (curl_errno($ch)) {
             $error_msg = curl_error($ch);
             curl_close($ch);
-            http_response_code(500);
-            echo json_encode(["success" => false, "message" => "cURL Error", "error" => $error_msg]);
-            exit;
+            return response(['data' => ['error' => 'cURL Error: ' . $error_msg, 'order_id' => $merchantTransactionId]], 500);
         }
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
@@ -148,7 +144,12 @@ class PhonepeV2
             $data = [
                 'success' =>  false,
                 'redirect_url' => $request->redirect_url,
-                'msg' => 'something went wrong'
+                'msg' => $response['error'] ?? 'something went wrong',
+                'payment_data' => [
+                    'order_id' => $response['order_id'] ?? $request['order_id'],
+                    'payment_id' => $response['payment_id'] ?? null,
+                    'amount' => $response['amount'] ?? 0,
+                ]
             ];
         }
         elseif ($response['payment_status'] === 'COMPLETED') {
@@ -160,6 +161,18 @@ class PhonepeV2
                     'order_id' => $response['order_id'],
                     'payment_id' => $response['payment_id'],
                     'amount' => $response['amount'],
+                ]
+            ];
+        }
+        else {
+            $data = [
+                'success' =>  false,
+                'redirect_url' => $request->redirect_url,
+                'msg' => 'Payment status: ' . $response['payment_status'],
+                'payment_data' => [
+                    'order_id' => $response['order_id'] ?? $request['order_id'],
+                    'payment_id' => $response['payment_id'] ?? null,
+                    'amount' => $response['amount'] ?? 0,
                 ]
             ];
         }
@@ -175,9 +188,16 @@ class PhonepeV2
         $token = $this->getValidToken();
 
         if (!$token) {
-            http_response_code(500);
-            echo json_encode(['error' => 'OAuth token not available. Please try again later.']);
-            exit;
+            return [
+                'payment_status' => 'FAILED',
+                'bank_reference' => null,
+                'currency' => "INR",
+                'amount' => 0,
+                'order_id' => $order_id,
+                'payment_id' => null,
+                'original_data' => null,
+                'error' => 'OAuth token not available.',
+            ];
         }
 
         $urlTemplate = $orderStatus_urls[$this->environment];
@@ -226,12 +246,28 @@ class PhonepeV2
                     return $data1;
                 }
             } else {
-                http_response_code(500);
-                echo json_encode(["message" => "Unexpected response from payment gateway."]);
+                return [
+                    'payment_status' => 'FAILED',
+                    'bank_reference' => null,
+                    'currency' => "INR",
+                    'amount' => 0,
+                    'order_id' => $order_id,
+                    'payment_id' => null,
+                    'original_data' => json_decode($response),
+                    'error' => 'Unexpected response from payment gateway.',
+                ];
             }
         } else {
-            http_response_code(500);
-            echo json_encode(["error" => "Failed to fetch payment status."]);
+            return [
+                'payment_status' => 'FAILED',
+                'bank_reference' => null,
+                'currency' => "INR",
+                'amount' => 0,
+                'order_id' => $order_id,
+                'payment_id' => null,
+                'original_data' => null,
+                'error' => 'Failed to fetch payment status. HTTP Code: ' . $httpCode,
+            ];
         }
     }
     public function fetchRefund($order_id)
@@ -342,22 +378,13 @@ class PhonepeV2
         $token = $this->getValidToken();
 
         if ($token) {
-            $expiresIn = floor(($GLOBALS['tokenExpiry'] - round(microtime(true) * 1000)) / 1000);
-            header('Content-Type: application/json');
-            // echo json_encode([
-            //     'access_token' => $token,
-            //     'expires_in' => $expiresIn
-            // ]);
-
-            $output = (json_encode([
+            $expiresIn = floor(($this->tokenExpiry - round(microtime(true) * 1000)) / 1000);
+            return [
                 'access_token' => $token,
                 'expires_in' => $expiresIn
-            ]));
-            // print_r($output);
+            ];
         } else {
-            http_response_code(500);
-            echo json_encode(['error' => 'Token not available or expired.']);
-            error_log("Access token is null or expired.");
+            return ['error' => 'Token not available or expired.'];
         }
     }
 }

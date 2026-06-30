@@ -28,8 +28,8 @@ class InitialSettings extends Command
          'PAYMENT_TEMPLATE' => 'blade',
          'PAYMENT_ENV' => 'local',
          'PAYMENT_GATEWAY_ID' => '2',
-         'PAYMENT_REDIRECTION_WAITIONG_TIME' => '7',
-         'UNABLE_PAYMENT_RESPONSE' => '0',
+         'PAYMENT_REDIRECTION_WAITING_TIME' => '7',
+         'ENABLE_PAYMENT_RESPONSE' => '0',
          'PAYMENT_FAVICON' => '0',
 
         'RAZORPAY_KEY_ID' => '',

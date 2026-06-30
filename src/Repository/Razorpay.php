@@ -27,7 +27,7 @@ class Razorpay
         try {
             $api = new Api($this->razorpay_key_id, $this->razorpay_key_secret);
             $orderData = [
-                'receipt'         => 'rcptid_11',
+                'receipt'         => 'rcpt_' . uniqid(),
                 'amount'          =>  $data['amount'] * 100, // amount rupees in paise
                 'currency'        => $this->currency
             ];
@@ -79,9 +79,15 @@ class Razorpay
             ];
         } else {
             $data = [
+                'success' => false,
                 'redirect_url' => $request->redirect_url,
                 'msg' => 'payment failed',
-                'msg' => $error
+                'msg_detail' => $error,
+                'payment_data' => [
+                    'order_id' => $request['order_id'] ?? null,
+                    'payment_id' => null,
+                    'amount' => $request['amount'] ?? 0,
+                ]
             ];
         }
         return $data;

@@ -10,23 +10,9 @@ class Pinelabs
 
     public function paymentRequest($input)
     {
-        global $formdata;
-        global $hash;
-
         $secret_key = config('larapay.pinelabs.secret_key');
 
-        function Hex2String($hex)
-        {
-            $string = '';
-
-            for ($i = 0; $i < strlen($hex) - 1; $i += 2) {
-                $string .= chr(hexdec($hex[$i] . $hex[$i + 1]));
-            }
-
-            return $string;
-        }
-
-        $secret_key = Hex2String($secret_key);
+        $secret_key = self::hex2String($secret_key);
 
         $ppc_UniqueMerchantTxnID = uniqid();
 
@@ -87,7 +73,7 @@ class Pinelabs
         $hash = strtoupper(hash_hmac('sha256', $strFormdata, $secret_key));
 
         $response = array(
-            'order_id' => 8946,
+            'order_id' => $ppc_UniqueMerchantTxnID,
             'formdata' => $formdata,
             'ppc_DIA_SECRET_TYPE' => $ppc_DIA_SECRET_TYPE,
             'hash' => $hash,
@@ -111,18 +97,44 @@ class Pinelabs
                 'redirect_url' => $request->redirect_url,
                 'msg' => 'payment successful',
                 'payment_data' => [
-                    'order_id' => $request['razorpay_order_id'],
-                    'payment_id' => $request['razorpay_payment_id'],
-                    'amount' => $request['amount'],
+                    'order_id' => $request['ppc_UniqueMerchantTxnID'] ?? $request['order_id'],
+                    'payment_id' => $request['ppc_TxnResponseCode'] ?? $request['payment_id'],
+                    'amount' => $request['ppc_Amount'] ? $request['ppc_Amount'] / 100 : $request['amount'],
                 ]
             ];
         } else {
             $data = [
                 'redirect_url' => $request->redirect_url,
                 'msg' => $error,
-                'success' => false
+                'success' => false,
+                'payment_data' => [
+                    'order_id' => $request['ppc_UniqueMerchantTxnID'] ?? $request['order_id'] ?? null,
+                    'payment_id' => null,
+                    'amount' => $request['ppc_Amount'] ? $request['ppc_Amount'] / 100 : ($request['amount'] ?? 0),
+                ]
             ];
         }
         return $data;
+    }
+
+    public function makeRefund($payment, $amount, $speed = "normal", $notes = null)
+    {
+        return [
+            'refund_id' => null,
+            'status' => 'failed',
+            'message' => 'PineLabs does not support refunds via API in this integration.',
+        ];
+    }
+
+    /**
+     * Convert hex string to binary string.
+     */
+    private static function hex2String(string $hex): string
+    {
+        $string = '';
+        for ($i = 0; $i < strlen($hex) - 1; $i += 2) {
+            $string .= chr(hexdec($hex[$i] . $hex[$i + 1]));
+        }
+        return $string;
     }
 }

@@ -16,7 +16,7 @@ return new class extends Migration
         Schema::create('payment_temps', function (Blueprint $table) {
             $table->id();
             $table->timestamps();
-            $table->morphs('payable');
+            $table->nullableMorphs('payable');
             $table->foreignId('payment_gateway_id')->nullable()->references('id')->on('payment_gateways');
             $table->string('payment_status')->nullable();
             $table->foreignId('user_id')->nullable()->references('id')->on('users');
@@ -46,6 +46,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('payments');
+        Schema::dropIfExists('payment_temps');
     }
 };

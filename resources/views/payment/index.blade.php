@@ -25,7 +25,7 @@
             "name": "{{ $input['app_name'] ?? config('app.name')}}",
             "description": "{{ $input['description'] ?? 'description' }}",
             "image": "{{ config('app.logo_light') }}",
-            "order_id": "{{ $orderData->id }}", //This is a sample Order ID. Pass the `id` obtained in the response of Step 1
+            "order_id": "{{ $orderData['order_id'] }}", //This is a sample Order ID. Pass the `id` obtained in the response of Step 1
             "handler": function(response) {
                 document.getElementById('razorpay_order_id').value = response.razorpay_order_id;
                 document.getElementById('razorpay_payment_id').value = response.razorpay_payment_id;

@@ -7,8 +7,8 @@ return [
         'currency' => 'INR',
         'payment_template' => env('PAYMENT_TEMPLATE', 'blade'),
         'payment_env' => env('PAYMENT_ENV', 'local'),
-        'redirection_waiting_time' => env('PAYMENT_REDIRECTION_WAITIONG_TIME', 7),
-        'unable_payment_response' => env('UNABLE_PAYMENT_RESPONSE', 0),
+        'redirection_waiting_time' => env('PAYMENT_REDIRECTION_WAITING_TIME', 7),
+        'enable_payment_response' => env('ENABLE_PAYMENT_RESPONSE', 0),
     ],
 
     'razorpay' => [
@@ -50,8 +50,31 @@ return [
     'payu' => [
         'merchant_id' => env('PAYU_MERCHANT_ID', '625325'),
         'merchant_salt' => env('PAYU_MERCHANT_SALT', '625325'),
-        'cliect_id' => env('PAYU_CLIENT_ID', '625325'),
-        'cliect_secret' => env('PAYU_CLIENT_SECRET', '625325'),
+        'client_id' => env('PAYU_CLIENT_ID', '625325'),
+        'client_secret' => env('PAYU_CLIENT_SECRET', '625325'),
     ],
-    
+
+    'payout' => [
+        'default_gateway' => env('PAYOUT_GATEWAY', 'razorpay'),
+
+        'razorpay' => [
+            'key_id' => env('RAZORPAY_PAYOUT_KEY_ID'),
+            'key_secret' => env('RAZORPAY_PAYOUT_KEY_SECRET'),
+            'account_number' => env('RAZORPAY_PAYOUT_ACCOUNT_NUMBER'),
+            'webhook_secret' => env('RAZORPAY_PAYOUT_WEBHOOK_SECRET'),
+        ],
+        'cashfree' => [
+            'client_id' => env('CASHFREE_PAYOUT_CLIENT_ID'),
+            'client_secret' => env('CASHFREE_PAYOUT_CLIENT_SECRET'),
+            'webhook_secret' => env('CASHFREE_PAYOUT_WEBHOOK_SECRET'),
+        ],
+        'payu' => [
+            'merchant_id' => env('PAYU_PAYOUT_MERCHANT_ID'),
+            'merchant_salt' => env('PAYU_PAYOUT_MERCHANT_SALT'),
+            'client_id' => env('PAYU_PAYOUT_CLIENT_ID'),
+            'client_secret' => env('PAYU_PAYOUT_CLIENT_SECRET'),
+            'webhook_secret' => env('PAYU_PAYOUT_WEBHOOK_SECRET'),
+        ],
+    ],
+
 ];

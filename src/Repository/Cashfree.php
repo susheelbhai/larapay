@@ -35,7 +35,7 @@ class Cashfree
             'order_amount' => $data['amount'],
             'order_meta' => [
                 'return_url' => $data['redirect_url'],
-                'notify_url' => route('home'),
+                'notify_url' => route('webhook', 7),
                 'payment_methods' => "",
             ],
             'customer_details' => [
@@ -99,8 +99,14 @@ class Cashfree
             ];
         } else {
             $data = [
+                'success' => false,
                 'redirect_url' => $request->redirect_url,
-                'msg' => 'something went wrong'
+                'msg' => 'something went wrong',
+                'payment_data' => [
+                    'order_id' => $request['order_id'],
+                    'payment_id' => null,
+                    'amount' => 0,
+                ]
             ];
         }
         return $data;

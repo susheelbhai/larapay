@@ -13,7 +13,6 @@ use Susheelbhai\Larapay\Repository\Stripe;
 use App\Http\Controllers\LarapayController;
 use Inertia\Inertia;
 use Susheelbhai\Larapay\Models\PaymentTemp;
-use Susheelbhai\Larapay\Repository\Phonepe;
 use Susheelbhai\Larapay\Repository\Cashfree;
 use Susheelbhai\Larapay\Repository\CCAvanue;
 use Susheelbhai\Larapay\Repository\Pinelabs;
@@ -89,7 +88,7 @@ class PaymentController extends Controller
             case 6:
                 $order = config('larapay.phonepe.phonepe_version') == 'v1' ? new PhonepeV1() : new PhonepeV2();
                 $view = 'gateways.phonepe.purchase_redirect';
-                 $props['phonepeKey'] = config('larapay.phonepe.key');
+                $props['phonepeKey'] = config('larapay.phonepe.api_key');
                 break;
             case 7:
                 $order = new Cashfree();
@@ -154,9 +153,7 @@ class PaymentController extends Controller
                 break;
             case 6:
                 $request = json_decode(base64_decode($request['response']));
-                if ($request->code && $request->code == 'PAYMENT_SUCCESS') {
-                    $event_type = 'payment.captured';
-                }
+                $event_type = ($request->code && $request->code == 'PAYMENT_SUCCESS') ? 'payment.captured' : 'payment.failed';
 
                 $data = [
                     'order_id' => $request->data->merchantTransactionId,
@@ -166,6 +163,7 @@ class PaymentController extends Controller
 
                 break;
             case 7:
+                $event_type = 'payment.unknown';
                 if ($request['type'] == 'PAYMENT_SUCCESS_WEBHOOK') {
                     $event_type = 'payment.captured';
                 }
@@ -228,7 +226,7 @@ class PaymentController extends Controller
         }
         $data = $response->paymentResponce($request);
         
-        if (config('larapay.settings.unable_payment_response') == 1) {
+        if (config('larapay.settings.enable_payment_response') == 1) {
             $payment = new LarapayController();
             if ($data['success'] == true) {
                 $payment->paymentSuccessful($request->all(), $data, $payment_temp);
@@ -255,7 +253,7 @@ class PaymentController extends Controller
         $payment_count = Payment::whereOrderId($order_id)->count();
         $data = [
             'success' =>  true,
-            'redirect_url' => $request->redirect_url ?? '',
+            'redirect_url' => $request['redirect_url'] ?? '',
             'msg' => 'payment successful',
             'payment_data' => [
                 'order_id' => $request['order_id'],

@@ -88,7 +88,7 @@ class CCAvanue
     public function paymentResponce($request)
     {
 
-        $encResponse = $_POST["encResp"];            //This is the response sent by the CCAvenue Server
+        $encResponse = $request['encResp'];            //This is the response sent by the CCAvenue Server
         $rcvdString = decrypt($encResponse, $this->working_key);        //Crypto Decryption used as per the specified working key.
         $decryptValues = explode('&', $rcvdString);
 
@@ -101,8 +101,9 @@ class CCAvanue
         $success = true;
 
         $error = "Payment Failed";
-        if ($response['status_message'] != 'Y') {
+        if (($response['order_status'] ?? '') !== 'Success') {
             $success = false;
+            $error = $response['status_message'] ?? 'Payment Failed';
         }
         $request->redirect_url = route('pay');
         if ($success === true) {
@@ -111,20 +112,34 @@ class CCAvanue
                 'redirect_url' => $request->redirect_url,
                 'msg' => 'payment successful',
                 'payment_data' => [
-                    'order_id' => $request['razorpay_order_id'],
-                    'payment_id' => $request['razorpay_payment_id'],
-                    'amount' => $request['amount'],
+                    'order_id' => $response['order_id'] ?? $request['order_id'],
+                    'payment_id' => $response['tracking_id'] ?? $request['payment_id'],
+                    'amount' => $response['amount'] ?? $request['amount'],
                 ]
             ];
         } else {
             $data = [
                 'redirect_url' => $request->redirect_url,
                 'msg' => $error,
-                'success' => false
+                'success' => false,
+                'payment_data' => [
+                    'order_id' => $response['order_id'] ?? $request['order_id'] ?? null,
+                    'payment_id' => null,
+                    'amount' => $response['amount'] ?? $request['amount'] ?? 0,
+                ]
             ];
         }
         // return $response; 
         return $data;
+    }
+
+    public function makeRefund($payment, $amount, $speed = "normal", $notes = null)
+    {
+        return [
+            'refund_id' => null,
+            'status' => 'failed',
+            'message' => 'CCAvenue does not support refunds via API in this integration.',
+        ];
     }
 }
 
